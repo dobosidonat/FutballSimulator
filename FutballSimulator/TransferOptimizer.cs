@@ -44,7 +44,7 @@ namespace FutballSimulator
                 if (player.MarketValue <= remainingBudget)
                 {
                     currentTeam.Add(player);
-                    Backtrack(index + 1, remainingBudget - player.MarketValue, currentStrength + player.OverallRating);
+                    Backtrack(index + 1, remainingBudget - player.MarketValue, currentStrength + player.Rating);
                     currentTeam.RemoveAt(currentTeam.Count - 1);
                 }
             }
