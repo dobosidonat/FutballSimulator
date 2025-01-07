@@ -42,5 +42,22 @@ namespace FutballSimulator
             return players;
         }
 
+        /// <summary>
+        /// Játékosok listájának mentése fájlba.
+        /// </summary>
+        /// <param name="players">A mentendő játékosok listája.</param>
+        /// <param name="filePath">A fájl elérési útvonala.</param>
+        public static void SavePlayersToFile(List<Player> players, string filePath)
+        {
+            var lines = new List<string>();
+            foreach (var player in players)
+            {
+                lines.Add($"{player.Name};{player.Position};{player.Age};{player.Rating:F1};{player.MarketValue}"); //F1 => F:fixed tehát a számokat tizedes formátumban jeleníti meg
+                                                                                                                    //1 => 1 tizedesjegyet jelenít meg
+            }
+
+            File.WriteAllLines(filePath, lines);
+        }
     }
 }
+

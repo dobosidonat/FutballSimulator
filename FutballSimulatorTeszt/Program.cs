@@ -1,6 +1,8 @@
 ﻿using FootballManagerLibrary;
 using FutballSimulator;
 using System;
+using System.IO;
+
 
 class Program
 {
@@ -93,11 +95,37 @@ class Program
             var bestTransfers = TransferOptimizer.OptimizeTransfers(transferMarket, fehervar.Budget, fehervar.Players);
             foreach (var player in bestTransfers)
             {
-                fehervar.AddPlayer(player);
+                fehervar.AddPlayer(player); // Ez a metódus frissíti a költségvetést és hozzáadja a játékost a kerethez
             }
 
             Console.WriteLine("\nFehérvár FC az igazolások után:");
             Console.WriteLine(fehervar);
+
+            Console.Write("\nAdd meg a fájl nevét a keret mentéséhez (pl. fehervar_keret_teszt1.txt): ");
+            string fileName;
+
+            while (true)
+            {
+                fileName = Console.ReadLine();
+
+                if (string.IsNullOrWhiteSpace(fileName))
+                {
+                    fileName = "fehervar_updated_keret.txt"; // Alapértelmezett fájlnév
+                }
+
+                if (File.Exists(fileName))
+                {
+                    Console.WriteLine($"A '{fileName}' fájl már létezik. Adj meg egy másik nevet:");
+                }
+                else
+                {
+                    break; // Kilépünk a ciklusból, ha a fájl még nem létezik
+                }
+            }
+
+            FileHandler.SavePlayersToFile(fehervar.Players, fileName);
+            Console.WriteLine($"\nA frissített keret mentve a '{fileName}' fájlba.");
+
         }
         catch (Exception ex)
         {
