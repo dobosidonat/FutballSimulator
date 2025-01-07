@@ -1,4 +1,5 @@
-﻿using FutballSimulator;
+﻿using FootballManagerLibrary;
+using FutballSimulator;
 using System;
 
 class Program
@@ -89,7 +90,7 @@ class Program
             var transferMarket = FileHandler.LoadPlayersFromFile("atigazolasi_piac.txt");
 
             // Optimalizált igazolások
-            var bestTransfers = TransferOptimizer.OptimizeTransfers(transferMarket, fehervar.Budget);
+            var bestTransfers = TransferOptimizer.OptimizeTransfers(transferMarket, fehervar.Budget, fehervar.Players);
             foreach (var player in bestTransfers)
             {
                 fehervar.AddPlayer(player);
