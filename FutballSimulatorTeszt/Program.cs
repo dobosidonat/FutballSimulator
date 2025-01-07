@@ -2,7 +2,7 @@
 using FutballSimulator;
 using System;
 using System.IO;
-
+using System.Collections.Generic;
 
 class Program
 {
@@ -11,16 +11,13 @@ class Program
         while (true) // Folyamatos futás, amíg a felhasználó nem választja a kilépést
         {
             Console.Clear();
-            Console.WriteLine("===== Fehérvár FC Átigazolási Teszt =====");
-            Console.WriteLine("Válassz egy tesztesetet a következők közül:");
-            Console.WriteLine("1. Budget 1 - 1 millió Ft költségvetés");
-            Console.WriteLine("2. Budget 2 - 2 millió Ft költségvetés");
-            Console.WriteLine("3. Budget 3 - 3 millió Ft költségvetés");
-            Console.WriteLine("4. Budget 4 - 4 millió Ft költségvetés");
-            Console.WriteLine("5. Budget 5 - 5 millió Ft költségvetés");
+            Console.WriteLine("===== Fehérvár FC Menedzser Program =====");
+            Console.WriteLine("Válassz a következő lehetőségek közül:");
+            Console.WriteLine("1. Igazolások végrehajtása");
+            Console.WriteLine("2. Meccsszimuláció");
             Console.WriteLine("0. Kilépés");
 
-            Console.Write("Add meg a választott teszteset számát: ");
+            Console.Write("Add meg a választásod: ");
             string input = Console.ReadLine();
 
             if (input == "0")
@@ -29,54 +26,93 @@ class Program
                 break;
             }
 
-            string testFile = null;
-
             switch (input)
             {
                 case "1":
-                    testFile = "budget1.txt";
+                    HandleTransfers();
                     break;
                 case "2":
-                    testFile = "budget2.txt";
-                    break;
-                case "3":
-                    testFile = "budget3.txt";
-                    break;
-                case "4":
-                    testFile = "budget4.txt";
-                    break;
-                case "5":
-                    testFile = "budget5.txt";
+                    SimulateMatchMenu();
                     break;
                 default:
                     Console.WriteLine("Érvénytelen választás. Nyomj meg egy gombot a folytatáshoz.");
                     Console.ReadKey();
-                    continue;
-            }
-
-            RunTestCase(testFile);
-
-            Console.WriteLine("\nSzeretnél újabb tesztesetet futtatni? (i/n)");
-            string continueInput = Console.ReadLine()?.ToLower();
-            if (continueInput != "i")
-            {
-                Console.WriteLine("Kilépés...");
-                break;
+                    break;
             }
         }
     }
 
     /// <summary>
-    /// Teszteset futtatása a megadott költségvetési fájllal.
+    /// Igazolások végrehajtása a felhasználó által választott költségvetéssel.
     /// </summary>
-    /// <param name="testFile">A költségvetési fájl neve.</param>
+    static void HandleTransfers()
+    {
+        Console.WriteLine("\nVálassz egy költségvetési tesztesetet:");
+        Console.WriteLine("1. Budget 1 - 1 millió Ft");
+        Console.WriteLine("2. Budget 2 - 2 millió Ft");
+        Console.WriteLine("3. Budget 3 - 3 millió Ft");
+        Console.WriteLine("4. Budget 4 - 4 millió Ft");
+        Console.WriteLine("5. Budget 5 - 5 millió Ft");
+
+        Console.Write("Add meg a választásod: ");
+        string budgetChoice = Console.ReadLine();
+        string testFile = $"budget{budgetChoice}.txt";
+
+        if (!File.Exists(testFile))
+        {
+            Console.WriteLine("A megadott költségvetési fájl nem található. Nyomj meg egy gombot a folytatáshoz.");
+            Console.ReadKey();
+            return;
+        }
+
+        RunTestCase(testFile);
+    }
+
+    /// <summary>
+    /// Meccsszimuláció menü.
+    /// </summary>
+    static void SimulateMatchMenu()
+    {
+        var fehervarPlayers = FileHandler.LoadPlayersFromFile("fehervar_players.txt");
+        var fehervar = new Team
+        {
+            Name = "Fehérvár FC",
+            Players = fehervarPlayers
+        };
+
+        var opponents = new List<string> { "Paksi FC", "Ferencváros", "Debreceni VSC", "Újpest FC" };
+        Console.WriteLine("\nVálassz egy ellenfelet:");
+
+        for (int i = 0; i < opponents.Count; i++)
+        {
+            Console.WriteLine($"{i + 1}. {opponents[i]}");
+        }
+
+        Console.Write("Ellenfél száma: ");
+        int opponentChoice = int.Parse(Console.ReadLine()) - 1;
+        if (opponentChoice < 0 || opponentChoice >= opponents.Count)
+        {
+            Console.WriteLine("Érvénytelen választás. Nyomj meg egy gombot a folytatáshoz.");
+            Console.ReadKey();
+            return;
+        }
+
+        var opponent = new Team
+        {
+            Name = opponents[opponentChoice],
+            Players = FileHandler.LoadPlayersFromFile($"{opponents[opponentChoice].ToLower().Replace(" ", "_")}_players.txt")
+        };
+
+        SimulateMatch(fehervar, opponent);
+    }
+
+    /// <summary>
+    /// Teszteset futtatása az igazolások optimalizálására.
+    /// </summary>
     static void RunTestCase(string testFile)
     {
         try
         {
-            Console.WriteLine($"\n--- Teszt: {testFile} ---");
-
-            // Fehérvár FC játékosok betöltése
             var fehervarPlayers = FileHandler.LoadPlayersFromFile("fehervar_players.txt");
             var fehervar = new Team
             {
@@ -88,48 +124,51 @@ class Program
             Console.WriteLine("Kezdő Fehérvár FC:");
             Console.WriteLine(fehervar);
 
-            // Átigazolási piac betöltése
             var transferMarket = FileHandler.LoadPlayersFromFile("atigazolasi_piac.txt");
-
-            // Optimalizált igazolások
             var bestTransfers = TransferOptimizer.OptimizeTransfers(transferMarket, fehervar.Budget, fehervar.Players);
+
             foreach (var player in bestTransfers)
             {
-                fehervar.AddPlayer(player); // Ez a metódus frissíti a költségvetést és hozzáadja a játékost a kerethez
+                fehervar.AddPlayer(player);
             }
 
             Console.WriteLine("\nFehérvár FC az igazolások után:");
             Console.WriteLine(fehervar);
 
             Console.Write("\nAdd meg a fájl nevét a keret mentéséhez (pl. fehervar_keret_teszt1.txt): ");
-            string fileName;
-
-            while (true)
-            {
-                fileName = Console.ReadLine();
-
-                if (string.IsNullOrWhiteSpace(fileName))
-                {
-                    fileName = "fehervar_updated_keret.txt"; // Alapértelmezett fájlnév
-                }
-
-                if (File.Exists(fileName))
-                {
-                    Console.WriteLine($"A '{fileName}' fájl már létezik. Adj meg egy másik nevet:");
-                }
-                else
-                {
-                    break; // Kilépünk a ciklusból, ha a fájl még nem létezik
-                }
-            }
+            string fileName = Console.ReadLine();
 
             FileHandler.SavePlayersToFile(fehervar.Players, fileName);
-            Console.WriteLine($"\nA frissített keret mentve a '{fileName}' fájlba.");
-
+            Console.WriteLine($"A frissített keret mentve a '{fileName}' fájlba.");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Hiba történt a teszteset futtatása során: {ex.Message}");
+            Console.WriteLine($"Hiba történt: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Mérkőzés szimulálása két csapat között.
+    /// </summary>
+    static void SimulateMatch(Team homeTeam, Team awayTeam)
+    {
+        Console.WriteLine($"\n--- Mérkőzés: {homeTeam.Name} vs {awayTeam.Name} ---");
+
+        var (homeGoals, awayGoals) = MatchSimulator.SimulateMatch(homeTeam, awayTeam);
+
+        Console.WriteLine($"{homeTeam.Name} - {awayTeam.Name}: {homeGoals} - {awayGoals}");
+
+        if (homeGoals > awayGoals)
+        {
+            Console.WriteLine($"{homeTeam.Name} győzött!");
+        }
+        else if (homeGoals < awayGoals)
+        {
+            Console.WriteLine($"{awayTeam.Name} győzött!");
+        }
+        else
+        {
+            Console.WriteLine("A mérkőzés döntetlennel zárult.");
         }
     }
 }
