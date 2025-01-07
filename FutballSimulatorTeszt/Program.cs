@@ -10,10 +10,11 @@ class Program
             Console.Clear();
             Console.WriteLine("===== Fehérvár FC Átigazolási Teszt =====");
             Console.WriteLine("Válassz egy tesztesetet a következők közül:");
-            Console.WriteLine("1. Teszt 1 - 1 millió Ft költségvetés");
-            Console.WriteLine("2. Teszt 2 - 2 millió Ft költségvetés");
-            Console.WriteLine("3. Teszt 3 - 3 millió Ft költségvetés");
-            Console.WriteLine("4. Teszt 4 - 5 millió Ft költségvetés");
+            Console.WriteLine("1. Budget 1 - 1 millió Ft költségvetés");
+            Console.WriteLine("2. Budget 2 - 2 millió Ft költségvetés");
+            Console.WriteLine("3. Budget 3 - 3 millió Ft költségvetés");
+            Console.WriteLine("4. Budget 4 - 4 millió Ft költségvetés");
+            Console.WriteLine("5. Budget 5 - 5 millió Ft költségvetés");
             Console.WriteLine("0. Kilépés");
 
             Console.Write("Add meg a választott teszteset számát: ");
@@ -85,7 +86,7 @@ class Program
             Console.WriteLine(fehervar);
 
             // Átigazolási piac betöltése
-            var transferMarket = FileHandler.LoadPlayersFromFile("transfer_market.txt");
+            var transferMarket = FileHandler.LoadPlayersFromFile("atigazolasi_piac.txt");
 
             // Optimalizált igazolások
             var bestTransfers = TransferOptimizer.OptimizeTransfers(transferMarket, fehervar.Budget);

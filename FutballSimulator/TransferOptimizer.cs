@@ -1,56 +1,61 @@
-﻿using System;
+﻿using FutballSimulator;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace FutballSimulator
+namespace FootballManagerLibrary
 {
-    /// <summary>
-    /// Statikus osztály a játékosigazolások optimalizálására a csapat költségvetése alapján.
-    /// </summary>
-    public class TransferOptimizer
+    public static class TransferOptimizer
     {
         /// <summary>
-        /// Megkeresi a költségvetés alapján a legjobb játékos-kombinációt.
+        /// Optimalizálja az igazolásokat backtracking segítségével.
         /// </summary>
         /// <param name="transferMarket">Az átigazolási piacon elérhető játékosok listája.</param>
         /// <param name="budget">A csapat költségvetése.</param>
-        /// <returnsA legjobb játékosok listája.></returns>
-        public static List<Player> OptimizeTransfers(List<Player> transferMarket, double budget)
+        /// <param name="currentTeam">A csapat jelenlegi kerete.</param>
+        /// <returns>A legjobb igazolások listája.</returns>
+        public static List<Player> OptimizeTransfers(List<Player> transferMarket, double budget, List<Player> currentTeam)
         {
-            List<Player> bestTeam = new List<Player>();
-            List<Player> currentTeam = new List<Player>();
-            double bestStrength = 0;
+            var bestTeam = new List<Player>(currentTeam); // A legjobb csapat, amit találtunk
+            double bestAverageRating = currentTeam.Average(p => p.Rating);
 
-            void Backtrack(int index, double remainingBudget, double currentStrength)
+            var currentTransfers = new List<Player>();
+
+            void Backtrack(int index, double remainingBudget)
             {
-                if (currentStrength > bestStrength)
+                // Ha az összes játékost megnéztük, ellenőrizzük az átlagos értékelést
+                if (index >= transferMarket.Count)
                 {
-                    bestStrength = currentStrength;
-                    bestTeam = new List<Player>(currentTeam);
-                }
+                    var newTeam = new List<Player>(currentTeam);
+                    newTeam.AddRange(currentTransfers);
+                    double newAverageRating = newTeam.Average(p => p.Rating);
 
-                if (index >= transferMarket.Count || remainingBudget <= 0)
-                {
+                    if (newAverageRating > bestAverageRating)
+                    {
+                        bestAverageRating = newAverageRating;
+                        bestTeam = new List<Player>(newTeam);
+                    }
+
                     return;
                 }
 
-                // Az aktuális játékos kihagyása
-                Backtrack(index + 1, remainingBudget, currentStrength);
+                // Ne vegyük fel az aktuális játékost
+                Backtrack(index + 1, remainingBudget);
 
-                // Az aktuális játékos hozzáadása, ha belefér a költségvetésbe
+                // Vegyük fel az aktuális játékost, ha belefér a költségvetésbe
                 var player = transferMarket[index];
                 if (player.MarketValue <= remainingBudget)
                 {
-                    currentTeam.Add(player);
-                    Backtrack(index + 1, remainingBudget - player.MarketValue, currentStrength + player.Rating);
-                    currentTeam.RemoveAt(currentTeam.Count - 1);
+                    currentTransfers.Add(player);
+                    Backtrack(index + 1, remainingBudget - player.MarketValue);
+                    currentTransfers.RemoveAt(currentTransfers.Count - 1); // Visszalépés
                 }
             }
 
-            Backtrack(0, budget, 0);
-            return bestTeam;
+            Backtrack(0, budget);
+
+            // Csak az újonnan igazolt játékosokat adja vissza
+            return bestTeam.Except(currentTeam).ToList();
         }
     }
 }
