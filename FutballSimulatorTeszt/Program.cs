@@ -1,41 +1,41 @@
-﻿using System;
+﻿using FootballManagerLibrary;
 using FutballSimulator;
+using System;
 
 class Program
 {
     static void Main(string[] args)
     {
-        // Fehérvár FC játékosok betöltése fájlból
-        var fehervarPlayers = FileHandler.LoadPlayersFromFile("fehervar_players.txt");
+        string[] testFiles = { "teszt1_budget.txt", "teszt2_budget.txt", "teszt3_budget.txt", "teszt4_budget.txt" };
 
-        // Fehérvár FC csapat létrehozása
-        var fehervar = new Team
+        foreach (var testFile in testFiles)
         {
-            Name = "Fehérvár FC",
-            Budget = 2000000,
-            Players = fehervarPlayers
-        };
+            Console.WriteLine($"\n--- Teszt: {testFile} ---");
 
-        Console.WriteLine("Fehérvár FC kezdő állapota:");
-        Console.WriteLine(fehervar);
+            // Fehérvár FC játékosok betöltése
+            var fehervarPlayers = FileHandler.LoadPlayersFromFile("fehervar_players.txt");
+            var fehervar = new Team
+            {
+                Name = "Fehérvár FC",
+                Budget = BudgetHandler.LoadBudgetFromFile(testFile),
+                Players = fehervarPlayers
+            };
 
-        // Átigazolási piac betöltése
-        var transferMarket = FileHandler.LoadPlayersFromFile("transfer_market.txt");
+            Console.WriteLine("Kezdő Fehérvár FC:");
+            Console.WriteLine(fehervar);
 
-        // Optimalizált igazolások
-        var bestTransfers = TransferOptimizer.OptimizeTransfers(transferMarket, fehervar.Budget);
-        foreach (var player in bestTransfers)
-        {
-            fehervar.AddPlayer(player);
-        }
+            // Átigazolási piac betöltése
+            var transferMarket = FileHandler.LoadPlayersFromFile("transfer_market.txt");
 
-        Console.WriteLine("\nFehérvár FC állapota az igazolások után:");
-        Console.WriteLine(fehervar);
+            // Optimalizált igazolások
+            var bestTransfers = TransferOptimizer.OptimizeTransfers(transferMarket, fehervar.Budget);
+            foreach (var player in bestTransfers)
+            {
+                fehervar.AddPlayer(player);
+            }
 
-        Console.WriteLine("\nIgazolt játékosok:");
-        foreach (var player in bestTransfers)
-        {
-            Console.WriteLine(player);
+            Console.WriteLine("\nFehérvár FC az igazolások után:");
+            Console.WriteLine(fehervar);
         }
     }
 }
