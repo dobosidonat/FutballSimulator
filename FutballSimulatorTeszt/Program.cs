@@ -13,10 +13,7 @@ class Program
         {
             Console.Clear();
             Console.WriteLine("\t\t\t\t\t===== Fehérvár FC Menedzser Program =====");
-            Console.WriteLine("\t\t\t\t\tNyomj egy gombot az induláshoz!");
-            Console.ReadKey();
-            Console.Clear();
-
+            Console.WriteLine();
             Console.WriteLine("Válassz a következő lehetőségek közül:");
             Console.WriteLine("1. Igazolások végrehajtása");
             Console.WriteLine("2. Meccsszimuláció");
@@ -54,11 +51,11 @@ class Program
     static void HandleTransfers()
     {
         Console.WriteLine("\nVálassz egy költségvetési tesztesetet:");
-        Console.WriteLine("1. Budget 1 - 1 millió Ft");
-        Console.WriteLine("2. Budget 2 - 2 millió Ft");
-        Console.WriteLine("3. Budget 3 - 3 millió Ft");
-        Console.WriteLine("4. Budget 4 - 4 millió Ft");
-        Console.WriteLine("5. Budget 5 - 5 millió Ft");
+        Console.WriteLine("1. 20 millió Ft");
+        Console.WriteLine("2. 40 millió Ft");
+        Console.WriteLine("3. 60 millió Ft");
+        Console.WriteLine("4. 80 millió Ft");
+        Console.WriteLine("5. 100 millió Ft");
 
         Console.Write("Add meg a választásod: ");
         string budgetChoice = Console.ReadLine();
