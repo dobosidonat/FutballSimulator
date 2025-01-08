@@ -21,7 +21,7 @@ namespace FutballSimulator
 
             Console.Write("Add meg a választásod: ");
             string budgetChoice = Console.ReadLine();
-            string testFile = $"budget{budgetChoice}.txt";
+            string testFile = $"budgets/budget{budgetChoice}.txt";
 
             if (!File.Exists(testFile))
             {
@@ -37,7 +37,7 @@ namespace FutballSimulator
         {
             try
             {
-                var fehervarPlayers = FileHandler.LoadPlayersFromFile("fehervar_players.txt");
+                var fehervarPlayers = FileHandler.LoadPlayersFromFile("keretek/fehervar_players.txt");
                 var fehervar = new Team
                 {
                     Name = "Fehérvár FC",

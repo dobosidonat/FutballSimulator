@@ -14,33 +14,42 @@ namespace FutballSimulator
                 Console.Clear();
                 Console.WriteLine("Válassz egy keretet a következő fájlok közül:");
 
-                var keretFiles = Directory.GetFiles(Directory.GetCurrentDirectory(), "ujkeret*.txt");
+                // Keretfájlok betöltése a "Keretek" mappából
+                var keretFiles = Directory.GetFiles(Path.Combine(Directory.GetCurrentDirectory(), "keretek"), "*.txt").ToList();
 
-                if (keretFiles.Length == 0)
+                if (keretFiles.Count == 0)
                 {
                     Console.WriteLine("Nincs elérhető keretfájl. Előbb hajts végre igazolásokat!");
                     Console.ReadKey();
                     return;
                 }
 
-                for (int i = 0; i < keretFiles.Length; i++)
+                // Listázzuk a keretfájlokat
+                for (int i = 0; i < keretFiles.Count; i++)
                 {
                     Console.WriteLine($"{i + 1}. {Path.GetFileName(keretFiles[i])}");
                 }
 
                 Console.Write("Keret száma: ");
-                if (!int.TryParse(Console.ReadLine(), out int keretChoice) || keretChoice < 1 || keretChoice > keretFiles.Length)
+                int keretChoice = int.Parse(Console.ReadLine()) - 1;
+
+                if (keretChoice < 0 || keretChoice >= keretFiles.Count)
                 {
                     Console.WriteLine("Érvénytelen választás. Nyomj meg egy gombot a folytatáshoz.");
                     Console.ReadKey();
                     return;
                 }
-                keretChoice -= 1;
 
+                // Kiválasztott keret betöltése
                 var fehervarPlayers = FileHandler.LoadPlayersFromFile(keretFiles[keretChoice]);
-                var fehervar = new Team { Name = "Fehérvár FC", Players = fehervarPlayers };
+                var fehervar = new Team
+                {
+                    Name = "Fehérvár FC",
+                    Players = fehervarPlayers
+                };
 
-                var opponents = new List<string> { "Paksi FC", "Ferencváros", "Debreceni VSC", "Újpest FC" };
+                // Ellenfél kiválasztása
+                var opponents = new List<string> { "Paksi FC", "Ferencváros", "Debreceni VSC", "Újpest FC", "Kecskeméti TE" };
                 Console.WriteLine("\nVálassz egy ellenfelet:");
                 for (int i = 0; i < opponents.Count; i++)
                 {
@@ -48,19 +57,18 @@ namespace FutballSimulator
                 }
 
                 Console.Write("Ellenfél száma: ");
-                if (!int.TryParse(Console.ReadLine(), out int opponentChoice) || opponentChoice < 1 || opponentChoice > opponents.Count)
-                {
-                    Console.WriteLine("Érvénytelen választás. Nyomj meg egy gombot a folytatáshoz.");
-                    Console.ReadKey();
-                    return;
-                }
-                opponentChoice -= 1;
+                int opponentChoice = int.Parse(Console.ReadLine()) - 1;
 
-                var opponentFileName = $"{opponents[opponentChoice].ToLower().Replace(" ", "_")}_players.txt";
+                var opponentFileName = Path.Combine("ellenfelek", $"{opponents[opponentChoice].ToLower().Replace(" ", "_")}_players.txt");
                 var opponentPlayers = FileHandler.LoadPlayersFromFile(opponentFileName);
 
-                var opponent = new Team { Name = opponents[opponentChoice], Players = opponentPlayers };
+                var opponent = new Team
+                {
+                    Name = opponents[opponentChoice],
+                    Players = opponentPlayers
+                };
 
+                // Meccs szimulálása a kiválasztott kerettel
                 SimulateMatchWithFormation(fehervar, opponent);
             }
             catch (Exception ex)
@@ -69,6 +77,7 @@ namespace FutballSimulator
                 Console.ReadKey();
             }
         }
+
 
         public static void SimulateMatchWithFormation(Team homeTeam, Team awayTeam)
         {
