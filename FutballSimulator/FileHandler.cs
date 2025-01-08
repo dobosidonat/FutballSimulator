@@ -46,6 +46,12 @@ namespace FootballManagerLibrary
         {
             try
             {
+                // Automatikusan hozzáadjuk a .txt kiterjesztést, ha hiányzik
+                if (!filePath.EndsWith(".txt", StringComparison.OrdinalIgnoreCase))
+                {
+                    filePath += ".txt";
+                }
+
                 var lines = new List<string>();
                 foreach (var player in players)
                 {
@@ -60,5 +66,6 @@ namespace FootballManagerLibrary
                 Console.WriteLine($"Hiba történt a fájl mentésekor: {ex.Message}");
             }
         }
+
     }
 }
