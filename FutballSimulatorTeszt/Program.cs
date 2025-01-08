@@ -3,6 +3,7 @@ using FutballSimulator;
 using System;
 using System.IO;
 using System.Collections.Generic;
+using System.Linq;
 
 class Program
 {
@@ -23,6 +24,7 @@ class Program
             if (input == "0")
             {
                 Console.WriteLine("Kilépés...");
+                Console.ReadKey();
                 break;
             }
 
@@ -67,6 +69,76 @@ class Program
 
         RunTestCase(testFile);
     }
+
+    /// <summary>
+    /// Teszteset futtatása az igazolások optimalizálására.
+    /// </summary>
+    static void RunTestCase(string testFile)
+    {
+        try
+        {
+            // Fehérvár FC játékosok betöltése
+            var fehervarPlayers = FileHandler.LoadPlayersFromFile("fehervar_players.txt");
+            var fehervar = new Team
+            {
+                Name = "Fehérvár FC",
+                Budget = BudgetHandler.LoadBudgetFromFile(testFile),
+                Players = fehervarPlayers
+            };
+
+            Console.WriteLine("Kezdő Fehérvár FC:");
+            EvaluateTeamPositions(fehervar); // Pozíciók kiértékelése az igazolások előtt
+
+            // Átigazolási piac betöltése
+            var transferMarket = FileHandler.LoadPlayersFromFile("atigazolasi_piac.txt");
+            var bestTransfers = TransferOptimizer.OptimizeTransfers(transferMarket, fehervar.Budget, fehervar.Players);
+
+            // Igazolt játékosok kiírása
+            Console.WriteLine("\nIgazolt játékosok:");
+            foreach (var player in bestTransfers)
+            {
+                Console.WriteLine($"- {player.Name} ({player.Position}), Értékelés: {player.Rating}, Piaci érték: {player.MarketValue} Ft");
+                fehervar.AddPlayer(player);
+            }
+
+            Console.WriteLine("\nFehérvár FC az igazolások után:");
+            EvaluateTeamPositions(fehervar); // Pozíciók kiértékelése az igazolások után
+
+            // Fájl mentése
+            Console.Write("\nAdd meg a fájl nevét a keret mentéséhez (pl. ujkeret1.txt): ");
+            string fileName;
+
+            while (true)
+            {
+                fileName = Console.ReadLine();
+
+                // Automatikusan hozzáadjuk a .txt kiterjesztést, ha hiányzik
+                if (!fileName.EndsWith(".txt", StringComparison.OrdinalIgnoreCase))
+                {
+                    fileName += ".txt";
+                }
+
+                // Ellenőrizzük, hogy a fájl létezik-e
+                if (File.Exists(fileName))
+                {
+                    Console.WriteLine($"A '{fileName}' fájl már létezik. Adj meg egy másik nevet:");
+                }
+                else
+                {
+                    break; // Kilépünk, ha a fájl még nem létezik
+                }
+            }
+
+            FileHandler.SavePlayersToFile(fehervar.Players, fileName);
+            Console.WriteLine($"A frissített keret mentve a '{fileName}' fájlba.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Hiba történt: {ex.Message}");
+        }
+    }
+
+
 
     /// <summary>
     /// Meccsszimuláció menü.
@@ -124,21 +196,9 @@ class Program
 
             Console.Write("Ellenfél száma: ");
             int opponentChoice = int.Parse(Console.ReadLine()) - 1;
-            if (opponentChoice < 0 || opponentChoice >= opponents.Count)
-            {
-                Console.WriteLine("Érvénytelen választás. Nyomj meg egy gombot a folytatáshoz.");
-                Console.ReadKey();
-                return;
-            }
 
             var opponentFileName = $"{opponents[opponentChoice].ToLower().Replace(" ", "_")}_players.txt";
             var opponentPlayers = FileHandler.LoadPlayersFromFile(opponentFileName);
-            if (opponentPlayers.Count == 0)
-            {
-                Console.WriteLine($"Hiba: Az ellenfél játékoslistája nem található vagy üres: {opponentFileName}");
-                Console.ReadKey();
-                return;
-            }
 
             var opponent = new Team
             {
@@ -146,68 +206,16 @@ class Program
                 Players = opponentPlayers
             };
 
+            // Pozíciók kiértékelése mindkét csapatnál
+            EvaluateTeamPositions(fehervar);
+            EvaluateTeamPositions(opponent);
+
             SimulateMatch(fehervar, opponent);
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Hiba történt a meccsszimuláció során: {ex.Message}");
             Console.ReadKey();
-        }
-    }
-
-
-
-
-    /// <summary>
-    /// Teszteset futtatása az igazolások optimalizálására.
-    /// </summary>
-    static void RunTestCase(string testFile)
-    {
-        try
-        {
-            var fehervarPlayers = FileHandler.LoadPlayersFromFile("fehervar_players.txt");
-            if (fehervarPlayers.Count == 0)
-            {
-                Console.WriteLine("Hiba: A Fehérvár FC játékoslistája nem található vagy üres.");
-                return;
-            }
-
-            var fehervar = new Team
-            {
-                Name = "Fehérvár FC",
-                Budget = BudgetHandler.LoadBudgetFromFile(testFile),
-                Players = fehervarPlayers
-            };
-
-            Console.WriteLine("Kezdő Fehérvár FC:");
-            Console.WriteLine(fehervar);
-
-            var transferMarket = FileHandler.LoadPlayersFromFile("atigazolasi_piac.txt");
-            if (transferMarket.Count == 0)
-            {
-                Console.WriteLine("Hiba: Az átigazolási piac listája üres vagy nem található.");
-                return;
-            }
-
-            var bestTransfers = TransferOptimizer.OptimizeTransfers(transferMarket, fehervar.Budget, fehervar.Players);
-
-            foreach (var player in bestTransfers)
-            {
-                fehervar.AddPlayer(player);
-            }
-
-            Console.WriteLine("\nFehérvár FC az igazolások után:");
-            Console.WriteLine(fehervar);
-
-            Console.Write("\nAdd meg a fájl nevét a keret mentéséhez (pl. fehervar_keret_teszt1.txt): ");
-            string fileName = Console.ReadLine();
-
-            FileHandler.SavePlayersToFile(fehervar.Players, fileName);
-            Console.WriteLine($"A frissített keret mentve a '{fileName}' fájlba.");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Hiba történt: {ex.Message}");
         }
     }
 
@@ -239,4 +247,21 @@ class Program
         Console.ReadKey();
     }
 
+    /// <summary>
+    /// Pozíciók kiértékelése egy csapatnál.
+    /// </summary>
+    static void EvaluateTeamPositions(Team team)
+    {
+        Console.WriteLine($"Pozíciók kiértékelése a {team.Name} csapatában:");
+
+        // Csoportosítás pozíciók szerint
+        var positions = team.Players.GroupBy(player => player.Position);
+
+        // Pozíciónként kiírás
+        foreach (var position in positions)
+        {
+            Console.WriteLine($"{position.Key}: {position.Count()} játékos, átlagos értékelés: {position.Average(p => p.Rating):F1}");
+        }
+        Console.WriteLine();
+    }
 }
