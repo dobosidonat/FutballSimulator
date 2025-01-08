@@ -23,8 +23,6 @@ class Program
 
             if (input == "0")
             {
-                Console.WriteLine("Kilépés...");
-                Console.ReadKey();
                 break;
             }
 
@@ -93,50 +91,67 @@ class Program
             var transferMarket = FileHandler.LoadPlayersFromFile("atigazolasi_piac.txt");
             var bestTransfers = TransferOptimizer.OptimizeTransfers(transferMarket, fehervar.Budget, fehervar.Players);
 
-            // Igazolt játékosok kiírása
-            Console.WriteLine("\nIgazolt játékosok:");
-            foreach (var player in bestTransfers)
+            if (bestTransfers.Count == 0)
             {
-                Console.WriteLine($"- {player.Name} ({player.Position}), Értékelés: {player.Rating}, Piaci érték: {player.MarketValue} Ft");
-                fehervar.AddPlayer(player);
+                Console.WriteLine("\nNem történt érdemi igazolás. A keret változatlan marad.");
+            }
+            else
+            {
+                Console.WriteLine("\nIgazolt játékosok:");
+                foreach (var player in bestTransfers)
+                {
+                    Console.WriteLine($"- {player.Name} ({player.Position}), Értékelés: {player.Rating}, Piaci érték: {player.MarketValue} Ft");
+                    fehervar.AddPlayer(player);
+                }
+
+                Console.WriteLine("\nFehérvár FC az igazolások után:");
+                EvaluateTeamPositions(fehervar); // Pozíciók kiértékelése az igazolások után
             }
 
-            Console.WriteLine("\nFehérvár FC az igazolások után:");
-            EvaluateTeamPositions(fehervar); // Pozíciók kiértékelése az igazolások után
+            // Rákérdezés a mentésre
+            Console.Write("\nSzeretnéd elmenteni a keretet? (i/n): ");
+            string saveResponse = Console.ReadLine()?.ToLower();
 
-            // Fájl mentése
-            Console.Write("\nAdd meg a fájl nevét a keret mentéséhez (pl. ujkeret1.txt): ");
-            string fileName;
-
-            while (true)
+            if (saveResponse == "i")
             {
-                fileName = Console.ReadLine();
+                Console.Write("\nAdd meg a fájl nevét a keret mentéséhez (pl. ujkeret1.txt): ");
+                string fileName;
 
-                // Automatikusan hozzáadjuk a .txt kiterjesztést, ha hiányzik
-                if (!fileName.EndsWith(".txt", StringComparison.OrdinalIgnoreCase))
+                while (true)
                 {
-                    fileName += ".txt";
+                    fileName = Console.ReadLine();
+
+                    // Automatikusan hozzáadjuk a .txt kiterjesztést, ha hiányzik
+                    if (!fileName.EndsWith(".txt", StringComparison.OrdinalIgnoreCase))
+                    {
+                        fileName += ".txt";
+                    }
+
+                    // Ellenőrizzük, hogy a fájl létezik-e
+                    if (File.Exists(fileName))
+                    {
+                        Console.WriteLine($"A '{fileName}' fájl már létezik. Adj meg egy másik nevet:");
+                    }
+                    else
+                    {
+                        break;
+                    }
                 }
 
-                // Ellenőrizzük, hogy a fájl létezik-e
-                if (File.Exists(fileName))
-                {
-                    Console.WriteLine($"A '{fileName}' fájl már létezik. Adj meg egy másik nevet:");
-                }
-                else
-                {
-                    break; // Kilépünk, ha a fájl még nem létezik
-                }
+                FileHandler.SavePlayersToFile(fehervar.Players, fileName);
+                Console.WriteLine($"A frissített keret mentve a '{fileName}' fájlba.");
             }
-
-            FileHandler.SavePlayersToFile(fehervar.Players, fileName);
-            Console.WriteLine($"A frissített keret mentve a '{fileName}' fájlba.");
+            else
+            {
+                Console.WriteLine("A keret nem került mentésre.");
+            }
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Hiba történt: {ex.Message}");
         }
     }
+
 
 
 
