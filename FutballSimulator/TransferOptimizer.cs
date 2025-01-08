@@ -7,18 +7,24 @@ namespace FutballSimulator
     public static class TransferOptimizer
     {
         /// <summary>
-        /// Átigazolások optimalizálása a megadott költségvetés és csapat alapján.
+        /// Átigazolások optimalizálása a megadott költségvetés és csapat alapján, prioritást adva a leggyengébb pozícióknak.
         /// </summary>
         public static List<Player> OptimizeTransfers(List<Player> transferMarket, double budget, List<Player> currentTeam, double improvementThreshold)
         {
             var bestTransfers = new List<Player>();
 
-            foreach (var position in currentTeam.GroupBy(p => p.Position))
+            // Csoportosítsuk a játékosokat pozíció szerint, és priorizáljuk a leggyengébb pozíciókat
+            var positionsByWeakness = currentTeam
+                .GroupBy(p => p.Position)
+                .OrderBy(positionGroup => positionGroup.Average(p => p.Rating)) // A leggyengébb pozíció kerül az elejére
+                .ToList();
+
+            foreach (var position in positionsByWeakness)
             {
                 double currentAverage = position.Average(p => p.Rating);
                 var potentialPlayers = transferMarket
                     .Where(p => p.Position == position.Key && p.MarketValue <= budget)
-                    .OrderByDescending(p => p.Rating)
+                    .OrderByDescending(p => p.Rating) // Legjobb játékos először
                     .ToList();
 
                 foreach (var player in potentialPlayers)
@@ -27,7 +33,7 @@ namespace FutballSimulator
                     {
                         bestTransfers.Add(player);
                         budget -= player.MarketValue;
-                        break;
+                        break; // Csak egy játékost igazolunk egy pozícióra
                     }
                 }
             }
@@ -45,5 +51,4 @@ namespace FutballSimulator
             return 0.05; // 5%
         }
     }
-
 }

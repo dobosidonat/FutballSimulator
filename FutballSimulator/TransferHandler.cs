@@ -12,11 +12,12 @@ namespace FutballSimulator
         public static void HandleTransfers()
         {
             Console.WriteLine("\nVálassz egy költségvetési tesztesetet:");
-            Console.WriteLine("1. 20 millió Ft");
-            Console.WriteLine("2. 40 millió Ft");
-            Console.WriteLine("3. 60 millió Ft");
-            Console.WriteLine("4. 80 millió Ft");
-            Console.WriteLine("5. 100 millió Ft");
+            Console.WriteLine("1. 500 ezer Ft");
+            Console.WriteLine("2. 1 millió Ft");
+            Console.WriteLine("3. 1,5 millió Ft");
+            Console.WriteLine("4. 2 millió Ft");
+            Console.WriteLine("5. 2,5 millió Ft");
+            Console.WriteLine("6. 10 millió Ft");
 
             Console.Write("Add meg a választásod: ");
             string budgetChoice = Console.ReadLine();
