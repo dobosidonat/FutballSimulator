@@ -9,28 +9,26 @@ class Program
         while (true)
         {
             Console.Clear();
-            Console.WriteLine("\t\t===== Fehérvár FC Menedzser Program =====");
+            Console.WriteLine("\t\t\t\t\t===== Fehérvár FC Menedzser Program =====");
             Console.WriteLine();
             Console.WriteLine("Válassz a következő lehetőségek közül:");
             Console.WriteLine("1. Igazolások végrehajtása");
-            Console.WriteLine("2. Meccsszimuláció");
-            Console.WriteLine("3. Meccsszimuláció egyéni felállással");
+            Console.WriteLine("2. Meccsszimuláció egyéni felállással");
             Console.WriteLine("0. Kilépés");
 
             Console.Write("Add meg a választásod: ");
             string input = Console.ReadLine();
 
-            if (input == "0") break;
-
+            if (input == "0")
+            {
+                break;
+            }
             switch (input)
             {
                 case "1":
                     TransferHandler.HandleTransfers();
                     break;
                 case "2":
-                    MatchHandler.SimulateMatchMenu();
-                    break;
-                case "3":
                     MatchHandler.SimulateMatchWithFormationMenu();
                     break;
                 default:
@@ -39,5 +37,6 @@ class Program
                     break;
             }
         }
+        Console.ReadKey();
     }
 }

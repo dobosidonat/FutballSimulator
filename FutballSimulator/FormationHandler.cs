@@ -6,6 +6,9 @@ namespace FutballSimulator
 {
     public static class FormationHandler
     {
+        /// <summary>
+        /// Felhasználótól bekéri a kívánt felállást.
+        /// </summary>
         public static (int defenders, int midfielders, int forwards) GetFormation()
         {
             Console.WriteLine("Add meg a kívánt felállást (pl. 4-4-2):");
@@ -24,6 +27,9 @@ namespace FutballSimulator
             return (defenders, midfielders, forwards);
         }
 
+        /// <summary>
+        /// Kiválasztja a megadott felállás alapján a legerősebb csapatot.
+        /// </summary>
         public static List<Player> GetBestTeam(Team team, int defenders, int midfielders, int forwards)
         {
             var bestDefenders = team.Players.Where(p => p.Position == "DF")
@@ -42,7 +48,8 @@ namespace FutballSimulator
                                              .OrderByDescending(p => p.Rating)
                                              .FirstOrDefault();
 
-            var bestTeam = new List<Player> { bestGoalkeeper };
+            var bestTeam = new List<Player>();
+            if (bestGoalkeeper != null) bestTeam.Add(bestGoalkeeper);
             bestTeam.AddRange(bestDefenders);
             bestTeam.AddRange(bestMidfielders);
             bestTeam.AddRange(bestForwards);

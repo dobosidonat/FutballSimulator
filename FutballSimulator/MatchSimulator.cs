@@ -17,8 +17,6 @@ namespace FutballSimulator
         public static (int homeGoals, int awayGoals) SimulateMatch(Team homeTeam, Team awayTeam)
         {
             Random random = new Random();
-
-            // Szimulációs logika: a csapatok átlagos értékelése alapján számolunk
             double homeRating = homeTeam.Players.Average(p => p.Rating);
             double awayRating = awayTeam.Players.Average(p => p.Rating);
 
