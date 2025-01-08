@@ -7,47 +7,43 @@ namespace FutballSimulator
     public static class TransferOptimizer
     {
         /// <summary>
-        /// Optimalizálja az igazolásokat a megadott költségvetés alapján.
-        /// Csak olyan játékosokat igazol, akik jelentős javulást hoznak az adott pozícióban.
+        /// Átigazolások optimalizálása a megadott költségvetés és csapat alapján.
         /// </summary>
-        public static List<Player> OptimizeTransfers(List<Player> transferMarket, double budget, List<Player> currentTeam)
+        public static List<Player> OptimizeTransfers(List<Player> transferMarket, double budget, List<Player> currentTeam, double improvementThreshold)
         {
             var bestTransfers = new List<Player>();
-            var remainingBudget = budget;
 
-            // Csoportosítsuk a jelenlegi csapatot pozíciók szerint
-            var currentTeamByPosition = currentTeam.GroupBy(p => p.Position)
-                                                   .ToDictionary(g => g.Key, g => g.ToList());
-
-            foreach (var player in transferMarket.OrderByDescending(p => p.Rating))
+            foreach (var position in currentTeam.GroupBy(p => p.Position))
             {
-                if (remainingBudget < player.MarketValue) continue;
+                double currentAverage = position.Average(p => p.Rating);
+                var potentialPlayers = transferMarket
+                    .Where(p => p.Position == position.Key && p.MarketValue <= budget)
+                    .OrderByDescending(p => p.Rating)
+                    .ToList();
 
-                // Számítsuk ki az adott pozíció átlagát
-                if (currentTeamByPosition.TryGetValue(player.Position, out var positionPlayers))
+                foreach (var player in potentialPlayers)
                 {
-                    double currentAverage = positionPlayers.Average(p => p.Rating);
-                    double newAverage = (positionPlayers.Sum(p => p.Rating) + player.Rating) / (positionPlayers.Count + 1);
-
-                    // Csak akkor igazoljunk, ha az átlag legalább 5%-kal javul
-                    if (newAverage <= currentAverage * 1.02) continue;
+                    if (player.Rating > currentAverage * (1 + improvementThreshold))
+                    {
+                        bestTransfers.Add(player);
+                        budget -= player.MarketValue;
+                        break;
+                    }
                 }
-
-                // Ha nincs ilyen pozíció a csapatban, automatikusan igazolunk
-                bestTransfers.Add(player);
-                remainingBudget -= player.MarketValue;
-
-                // Frissítsük a pozíciók szerinti csoportot
-                if (!currentTeamByPosition.ContainsKey(player.Position))
-                {
-                    currentTeamByPosition[player.Position] = new List<Player>();
-                }
-                currentTeamByPosition[player.Position].Add(player);
             }
 
             return bestTransfers;
         }
 
-
+        /// <summary>
+        /// Javulási tűréshatár meghatározása a költségvetés alapján.
+        /// </summary>
+        public static double GetImprovementThreshold(double budget)
+        {
+            if (budget <= 20_000_000) return 0.02; // 2%
+            if (budget <= 50_000_000) return 0.03; // 3%
+            return 0.05; // 5%
+        }
     }
+
 }

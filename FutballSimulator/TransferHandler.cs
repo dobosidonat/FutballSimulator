@@ -32,7 +32,7 @@ namespace FutballSimulator
             RunTestCase(testFile);
         }
 
-        private static void RunTestCase(string testFile)
+        static void RunTestCase(string testFile)
         {
             try
             {
@@ -45,35 +45,30 @@ namespace FutballSimulator
                 };
 
                 Console.WriteLine("Kezdő Fehérvár FC:");
-                TeamEvaluator.EvaluateTeamPositions(fehervar);
+                TeamEvaluator.EvaluateTeamPositions(fehervar); // Használjuk a TeamEvaluator-t
 
                 var transferMarket = FileHandler.LoadPlayersFromFile("atigazolasi_piac.txt");
-                var bestTransfers = TransferOptimizer.OptimizeTransfers(transferMarket, fehervar.Budget, fehervar.Players);
 
-                if (bestTransfers.Count == 0)
-                {
-                    Console.WriteLine("\nNem történt érdemi igazolás.");
-                }
-                else
-                {
-                    Console.WriteLine("\nIgazolt játékosok:");
-                    foreach (var player in bestTransfers)
-                    {
-                        Console.WriteLine($"{player.Name} ({player.Position}), Értékelés: {player.Rating}");
-                        fehervar.AddPlayer(player);
-                    }
+                double improvementThreshold = TransferOptimizer.GetImprovementThreshold(fehervar.Budget); // TransferOptimizer használata
+                var bestTransfers = TransferOptimizer.OptimizeTransfers(transferMarket, fehervar.Budget, fehervar.Players, improvementThreshold);
 
-                    TeamEvaluator.EvaluateTeamPositions(fehervar);
+                Console.WriteLine("\nIgazolt játékosok:");
+                foreach (var player in bestTransfers)
+                {
+                    Console.WriteLine($"- {player.Name} ({player.Position}), Értékelés: {player.Rating}, Piaci érték: {player.MarketValue} Ft");
+                    fehervar.AddPlayer(player);
                 }
 
-                SaveUpdatedTeam(fehervar);
+                Console.WriteLine("\nFehérvár FC az igazolások után:");
+                TeamEvaluator.EvaluateTeamPositions(fehervar); // Újra hívjuk a kiértékelést
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Hiba: {ex.Message}");
+                Console.WriteLine($"Hiba történt: {ex.Message}");
             }
             Console.ReadKey();
         }
+
 
         private static void SaveUpdatedTeam(Team team)
         {
