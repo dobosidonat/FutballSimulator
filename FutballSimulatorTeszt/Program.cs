@@ -21,7 +21,7 @@ class Program
 
             if (input == "0")
             {
-                break;
+                Environment.Exit(0); // Azonnali kilépés a programból
             }
             switch (input)
             {
@@ -37,6 +37,5 @@ class Program
                     break;
             }
         }
-        Console.ReadKey();
     }
 }
