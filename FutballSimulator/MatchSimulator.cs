@@ -18,9 +18,12 @@ namespace FutballSimulator
         {
             Random random = new Random();
 
-            // Gólok számának generálása a csapatok átlagos értékelése alapján
-            int homeGoals = random.Next(0, (int)(homeTeam.AverageRating / 10)) + random.Next(0, 2);
-            int awayGoals = random.Next(0, (int)(awayTeam.AverageRating / 10)) + random.Next(0, 2);
+            // Szimulációs logika: a csapatok átlagos értékelése alapján számolunk
+            double homeRating = homeTeam.Players.Average(p => p.Rating);
+            double awayRating = awayTeam.Players.Average(p => p.Rating);
+
+            int homeGoals = (int)(random.NextDouble() * (homeRating / 10));
+            int awayGoals = (int)(random.NextDouble() * (awayRating / 10));
 
             return (homeGoals, awayGoals);
         }

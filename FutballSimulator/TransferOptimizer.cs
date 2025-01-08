@@ -1,9 +1,8 @@
-﻿using FutballSimulator;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace FootballManagerLibrary
+namespace FutballSimulator
 {
     public static class TransferOptimizer
     {
