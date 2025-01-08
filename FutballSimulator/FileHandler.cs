@@ -1,63 +1,64 @@
-﻿using System;
+﻿using FutballSimulator;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 
-
-
-namespace FutballSimulator
+namespace FootballManagerLibrary
 {
-    /// <summary>
-    /// Statikus osztály a fájlkezeléshez.
-    /// </summary>
     public static class FileHandler
     {
-        /// <summary>
-        /// Játékosok betöltése szöveges fájlból.
-        /// </summary>
-        /// <param name="filePath">A fájl elérési útvonala.</param>
-        /// <returns>A játékosok listája.</returns>
         public static List<Player> LoadPlayersFromFile(string filePath)
         {
             var players = new List<Player>();
 
-            foreach (var line in File.ReadAllLines(filePath))
+            try
             {
-                var parts = line.Split(';'); // Az adatok elválasztása
-                if (parts.Length == 5)
+                if (!File.Exists(filePath))
                 {
-                    players.Add(new Player
-                    {
-                        Name = parts[0],
-                        Position = parts[1],
-                        Age = int.Parse(parts[2]),
-                        Rating = double.Parse(parts[3]),
-                        MarketValue = double.Parse(parts[4])
-                    });
+                    throw new FileNotFoundException($"A fájl nem található: {filePath}");
                 }
+
+                foreach (var line in File.ReadAllLines(filePath))
+                {
+                    var parts = line.Split(';');
+                    if (parts.Length == 5)
+                    {
+                        players.Add(new Player
+                        {
+                            Name = parts[0],
+                            Position = parts[1],
+                            Age = int.Parse(parts[2]),
+                            Rating = double.Parse(parts[3]),
+                            MarketValue = double.Parse(parts[4])
+                        });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Hiba történt a játékosok betöltésekor: {ex.Message}");
             }
 
             return players;
         }
 
-        /// <summary>
-        /// Játékosok listájának mentése fájlba.
-        /// </summary>
-        /// <param name="players">A mentendő játékosok listája.</param>
-        /// <param name="filePath">A fájl elérési útvonala.</param>
         public static void SavePlayersToFile(List<Player> players, string filePath)
         {
-            var lines = new List<string>();
-            foreach (var player in players)
+            try
             {
-                lines.Add($"{player.Name};{player.Position};{player.Age};{player.Rating:F1};{player.MarketValue}"); //F1 => F:fixed tehát a számokat tizedes formátumban jeleníti meg
-                                                                                                                    //1 => 1 tizedesjegyet jelenít meg
-            }
+                var lines = new List<string>();
+                foreach (var player in players)
+                {
+                    lines.Add($"{player.Name};{player.Position};{player.Age};{player.Rating:F1};{player.MarketValue}");
+                }
 
-            File.WriteAllLines(filePath, lines);
+                File.WriteAllLines(filePath, lines);
+                Console.WriteLine($"A játékosok sikeresen mentve lettek a következő fájlba: {filePath}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Hiba történt a fájl mentésekor: {ex.Message}");
+            }
         }
     }
 }
-
