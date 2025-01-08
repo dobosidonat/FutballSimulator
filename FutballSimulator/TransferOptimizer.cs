@@ -20,42 +20,35 @@ namespace FootballManagerLibrary
             var currentTeamByPosition = currentTeam.GroupBy(p => p.Position)
                                                    .ToDictionary(g => g.Key, g => g.ToList());
 
-            var weakestPosition = currentTeamByPosition
-                .OrderBy(p => p.Value.Average(player => player.Rating))
-                .FirstOrDefault().Key;
-
-            foreach (var player in transferMarket.OrderByDescending(p => p.Rating / p.MarketValue))
+            foreach (var player in transferMarket.OrderByDescending(p => p.Rating))
             {
                 if (remainingBudget < player.MarketValue) continue;
 
+                // Számítsuk ki az adott pozíció átlagát
                 if (currentTeamByPosition.TryGetValue(player.Position, out var positionPlayers))
                 {
-                    var bestCurrentPlayer = positionPlayers.Max(p => p.Rating);
+                    double currentAverage = positionPlayers.Average(p => p.Rating);
+                    double newAverage = (positionPlayers.Sum(p => p.Rating) + player.Rating) / (positionPlayers.Count + 1);
 
-                    // Csak akkor igazoljunk, ha az új játékos legalább 5%-kal jobb, és az adott pozíció gyenge
-                    if (player.Position == weakestPosition || player.Rating > bestCurrentPlayer * 1.05)
-                    {
-                        bestTransfers.Add(player);
-                        remainingBudget -= player.MarketValue;
-
-                        if (!currentTeamByPosition.ContainsKey(player.Position))
-                        {
-                            currentTeamByPosition[player.Position] = new List<Player>();
-                        }
-                        currentTeamByPosition[player.Position].Add(player);
-                    }
+                    // Csak akkor igazoljunk, ha az átlag legalább 5%-kal javul
+                    if (newAverage <= currentAverage * 1.02) continue;
                 }
-                else
+
+                // Ha nincs ilyen pozíció a csapatban, automatikusan igazolunk
+                bestTransfers.Add(player);
+                remainingBudget -= player.MarketValue;
+
+                // Frissítsük a pozíciók szerinti csoportot
+                if (!currentTeamByPosition.ContainsKey(player.Position))
                 {
-                    // Pozíció üres, automatikusan igazolunk
-                    bestTransfers.Add(player);
-                    remainingBudget -= player.MarketValue;
-                    currentTeamByPosition[player.Position] = new List<Player> { player };
+                    currentTeamByPosition[player.Position] = new List<Player>();
                 }
+                currentTeamByPosition[player.Position].Add(player);
             }
 
             return bestTransfers;
         }
+
 
     }
 }

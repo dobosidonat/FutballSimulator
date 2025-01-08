@@ -12,7 +12,11 @@ class Program
         while (true) // Folyamatos futás, amíg a felhasználó nem választja a kilépést
         {
             Console.Clear();
-            Console.WriteLine("===== Fehérvár FC Menedzser Program =====");
+            Console.WriteLine("\t\t\t\t\t===== Fehérvár FC Menedzser Program =====");
+            Console.WriteLine("\t\t\t\t\tNyomj egy gombot az induláshoz!");
+            Console.ReadKey();
+            Console.Clear();
+
             Console.WriteLine("Válassz a következő lehetőségek közül:");
             Console.WriteLine("1. Igazolások végrehajtása");
             Console.WriteLine("2. Meccsszimuláció");
@@ -29,9 +33,11 @@ class Program
             switch (input)
             {
                 case "1":
+                    Console.Clear();
                     HandleTransfers();
                     break;
                 case "2":
+                    Console.Clear();
                     SimulateMatchMenu();
                     break;
                 default:
@@ -57,6 +63,7 @@ class Program
         Console.Write("Add meg a választásod: ");
         string budgetChoice = Console.ReadLine();
         string testFile = $"budget{budgetChoice}.txt";
+        Console.Clear();
 
         if (!File.Exists(testFile))
         {
@@ -75,7 +82,6 @@ class Program
     {
         try
         {
-            // Fehérvár FC játékosok betöltése
             var fehervarPlayers = FileHandler.LoadPlayersFromFile("fehervar_players.txt");
             var fehervar = new Team
             {
@@ -150,10 +156,8 @@ class Program
         {
             Console.WriteLine($"Hiba történt: {ex.Message}");
         }
+        Console.ReadKey();
     }
-
-
-
 
     /// <summary>
     /// Meccsszimuláció menü.
@@ -162,7 +166,7 @@ class Program
     {
         try
         {
-            // Keretfájlok automatikus keresése ujkeret# formátumban
+            Console.Clear();
             var keretFiles = Directory.GetFiles(Directory.GetCurrentDirectory(), "ujkeret*.txt");
 
             if (keretFiles.Length == 0)
