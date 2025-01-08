@@ -45,11 +45,11 @@ namespace FutballSimulator
                 };
 
                 Console.WriteLine("Kezdő Fehérvár FC:");
-                TeamEvaluator.EvaluateTeamPositions(fehervar); // Használjuk a TeamEvaluator-t
+                TeamEvaluator.EvaluateTeamPositions(fehervar);
 
                 var transferMarket = FileHandler.LoadPlayersFromFile("atigazolasi_piac.txt");
 
-                double improvementThreshold = TransferOptimizer.GetImprovementThreshold(fehervar.Budget); // TransferOptimizer használata
+                double improvementThreshold = TransferOptimizer.GetImprovementThreshold(fehervar.Budget);
                 var bestTransfers = TransferOptimizer.OptimizeTransfers(transferMarket, fehervar.Budget, fehervar.Players, improvementThreshold);
 
                 Console.WriteLine("\nIgazolt játékosok:");
@@ -60,7 +60,10 @@ namespace FutballSimulator
                 }
 
                 Console.WriteLine("\nFehérvár FC az igazolások után:");
-                TeamEvaluator.EvaluateTeamPositions(fehervar); // Újra hívjuk a kiértékelést
+                TeamEvaluator.EvaluateTeamPositions(fehervar);
+
+                // Keret mentése
+                SaveUpdatedTeam(fehervar);
             }
             catch (Exception ex)
             {
@@ -68,6 +71,7 @@ namespace FutballSimulator
             }
             Console.ReadKey();
         }
+
 
 
         private static void SaveUpdatedTeam(Team team)
