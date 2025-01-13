@@ -48,6 +48,9 @@
     <Compile Include="MatchSimulator.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ScheduleHandler.cs" />
+    <Compile Include="SeasonSimulator.cs" />
+    <Compile Include="TableHandler.cs" />
     <Compile Include="Team.cs" />
     <Compile Include="TeamEvaluator.cs" />
     <Compile Include="TransferHandler.cs" />
