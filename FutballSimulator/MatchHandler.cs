@@ -7,78 +7,9 @@ namespace FutballSimulator
 {
     public static class MatchHandler
     {
-        public static void SimulateMatchWithFormationMenu()
-        {
-            try
-            {
-                Console.Clear();
-                Console.WriteLine("Válassz egy keretet a következő fájlok közül:");
-
-                // Keretfájlok betöltése a "Keretek" mappából
-                var keretFiles = Directory.GetFiles(Path.Combine(Directory.GetCurrentDirectory(), "keretek"), "*.txt").ToList();
-
-                if (keretFiles.Count == 0)
-                {
-                    Console.WriteLine("Nincs elérhető keretfájl. Előbb hajts végre igazolásokat!");
-                    Console.ReadKey();
-                    return;
-                }
-
-                // Listázzuk a keretfájlokat
-                for (int i = 0; i < keretFiles.Count; i++)
-                {
-                    Console.WriteLine($"{i + 1}. {Path.GetFileName(keretFiles[i])}");
-                }
-
-                Console.Write("Keret száma: ");
-                int keretChoice = int.Parse(Console.ReadLine()) - 1;
-
-                if (keretChoice < 0 || keretChoice >= keretFiles.Count)
-                {
-                    Console.WriteLine("Érvénytelen választás. Nyomj meg egy gombot a folytatáshoz.");
-                    Console.ReadKey();
-                    return;
-                }
-
-                // Kiválasztott keret betöltése
-                var fehervarPlayers = FileHandler.LoadPlayersFromFile(keretFiles[keretChoice]);
-                var fehervar = new Team
-                {
-                    Name = "Fehérvár FC",
-                    Players = fehervarPlayers
-                };
-
-                // Ellenfél kiválasztása
-                var opponents = new List<string> { "Paksi FC", "Ferencváros", "Debreceni VSC", "Újpest FC", "Kecskeméti TE" };
-                Console.WriteLine("\nVálassz egy ellenfelet:");
-                for (int i = 0; i < opponents.Count; i++)
-                {
-                    Console.WriteLine($"{i + 1}. {opponents[i]}");
-                }
-
-                Console.Write("Ellenfél száma: ");
-                int opponentChoice = int.Parse(Console.ReadLine()) - 1;
-
-                var opponentFileName = Path.Combine("ellenfelek", $"{opponents[opponentChoice].ToLower().Replace(" ", "_")}_players.txt");
-                var opponentPlayers = FileHandler.LoadPlayersFromFile(opponentFileName);
-
-                var opponent = new Team
-                {
-                    Name = opponents[opponentChoice],
-                    Players = opponentPlayers
-                };
-
-                // Meccs szimulálása a kiválasztott kerettel
-                SimulateMatchWithFormation(fehervar, opponent);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Hiba történt a meccsszimuláció során: {ex.Message}");
-                Console.ReadKey();
-            }
-        }
-
-
+        /// <summary>
+        /// Mérkőzés szimulálása egyéni felállással.
+        /// </summary>
         public static void SimulateMatchWithFormation(Team homeTeam, Team awayTeam)
         {
             var (defenders, midfielders, forwards) = FormationHandler.GetFormation();
@@ -116,7 +47,9 @@ namespace FutballSimulator
             Console.ReadKey();
         }
 
-
+        /// <summary>
+        /// Csapat felállásának megjelenítése.
+        /// </summary>
         private static void DisplayFormation(List<Player> team, int defenders, int midfielders, int forwards)
         {
             var goalkeeper = team.FirstOrDefault(p => p.Position == "GK");
@@ -141,6 +74,9 @@ namespace FutballSimulator
             }
         }
 
+        /// <summary>
+        /// Mérkőzés eredményének mentése fájlba.
+        /// </summary>
         private static void SaveMatchResult(Team homeTeam, Team awayTeam, int homeGoals, int awayGoals, int defenders, int midfielders, int forwards)
         {
             try
@@ -183,6 +119,5 @@ namespace FutballSimulator
                 Console.WriteLine($"Hiba az eredmény mentése során: {ex.Message}");
             }
         }
-
     }
 }

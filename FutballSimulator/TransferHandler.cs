@@ -54,10 +54,9 @@ namespace FutballSimulator
                     Players = fehervarPlayers
                 };
 
-                // Csapatrészek értékelése
+                // Jelenlegi csapat pozícióinak kiértékelése
                 Console.WriteLine("Kezdő Fehérvár FC:");
-                var (defense, midfield, forward, goalkeeper) = TeamEvaluator.EvaluateTeamRatings(fehervar);
-                Console.WriteLine($"Védelem: {defense:F1}, Középpálya: {midfield:F1}, Támadósor: {forward:F1}, Kapus: {goalkeeper:F1}");
+                TeamEvaluator.EvaluateTeamRatings(fehervar);
 
                 // Átigazolási piac betöltése
                 var transferMarket = FileHandler.LoadPlayersFromFile("atigazolasi_piac.txt");
@@ -77,8 +76,7 @@ namespace FutballSimulator
 
                 // Csapat kiértékelése az igazolások után
                 Console.WriteLine("\nFehérvár FC az igazolások után:");
-                var (updatedDefense, updatedMidfield, updatedForward, updatedGoalkeeper) = TeamEvaluator.EvaluateTeamRatings(fehervar);
-                Console.WriteLine($"Védelem: {updatedDefense:F1}, Középpálya: {updatedMidfield:F1}, Támadósor: {updatedForward:F1}, Kapus: {updatedGoalkeeper:F1}");
+                TeamEvaluator.EvaluateTeamRatings(fehervar);
 
                 // Frissített keret mentése
                 SaveUpdatedTeam(fehervar);

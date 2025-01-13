@@ -6,6 +6,63 @@ namespace FutballSimulator
 {
     public static class FileHandler
     {
+        /// <summary>
+        /// Csapatok betöltése a megadott fájlból, kivéve a Fehérvár FC-t.
+        /// </summary>
+        public static List<Team> LoadTeams(string filePath)
+        {
+            var teams = new List<Team>();
+
+            foreach (var line in File.ReadAllLines(filePath))
+            {
+                var parts = line.Split(';');
+            
+                teams.Add(new Team
+                {
+                    Name = parts[0],
+                    Players = GeneratePlayersFromRatings(
+                        double.Parse(parts[1]), // Védelem
+                        double.Parse(parts[2]), // Középpálya
+                        double.Parse(parts[3]), // Támadók
+                        double.Parse(parts[4])  // Kapus
+                    )
+                });
+                
+            }
+
+            return teams;
+        }
+
+        /// <summary>
+        /// Játékosok generálása a csapatrészek értékelései alapján.
+        /// </summary>
+        private static List<Player> GeneratePlayersFromRatings(double defense, double midfield, double forward, double goalkeeper)
+        {
+            var players = new List<Player>();
+
+            // Védelem (DF)
+            for (int i = 0; i < 4; i++)
+            {
+                players.Add(new Player { Name = $"Védő {i + 1}", Position = "DF", Rating = defense });
+            }
+
+            // Középpálya (MF)
+            for (int i = 0; i < 4; i++)
+            {
+                players.Add(new Player { Name = $"Középpályás {i + 1}", Position = "MF", Rating = midfield });
+            }
+
+            // Támadók (FW)
+            for (int i = 0; i < 3; i++)
+            {
+                players.Add(new Player { Name = $"Támadó {i + 1}", Position = "FW", Rating = forward });
+            }
+
+            // Kapus (GK)
+            players.Add(new Player { Name = "Kapus", Position = "GK", Rating = goalkeeper });
+
+            return players;
+        }
         public static List<Player> LoadPlayersFromFile(string filePath)
         {
             var players = new List<Player>();
