@@ -1,28 +1,30 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 
 namespace FutballSimulator
 {
     public static class TeamEvaluator
     {
         /// <summary>
-        /// Pozíciók kiértékelése egy csapatnál.
+        /// Kiértékeli a csapatrészek (védelem, középpálya, támadósor, kapus) átlagos értékelését.
         /// </summary>
-        /// <param name="team">A csapat, amelyet kiértékelünk.</param>
-        public static void EvaluateTeamPositions(Team team)
+        /// <param name="team">A kiértékelendő csapat.</param>
+        /// <returns>Csapatrészenkénti átlagos értékelések.</returns>
+        public static (double DefenseRating, double MidfieldRating, double ForwardRating, double GoalkeeperRating) EvaluateTeamRatings(Team team)
         {
-            Console.WriteLine($"Pozíciók kiértékelése a {team.Name} csapatában:");
+            // Védelem (DF) átlagos értékelése
+            double defense = team.Players.Where(p => p.Position == "DF").Average(p => p.Rating);
 
-            // Játékosok csoportosítása pozíciók szerint
-            var positions = team.Players.GroupBy(player => player.Position);
+            // Középpálya (MF) átlagos értékelése
+            double midfield = team.Players.Where(p => p.Position == "MF").Average(p => p.Rating);
 
-            // Pozíciónként kiírás
-            foreach (var position in positions)
-            {
-                Console.WriteLine($"{position.Key}: {position.Count()} játékos, átlagos értékelés: {position.Average(p => p.Rating):F1}");
-            }
+            // Támadósor (FW) átlagos értékelése
+            double forward = team.Players.Where(p => p.Position == "FW").Average(p => p.Rating);
 
-            Console.WriteLine();
+            // Kapus (GK) átlagos értékelése
+            double goalkeeper = team.Players.Where(p => p.Position == "GK").Average(p => p.Rating);
+
+            // Visszaadjuk a csapatrészek értékelését
+            return (defense, midfield, forward, goalkeeper);
         }
     }
 }

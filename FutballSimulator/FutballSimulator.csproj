@@ -21,6 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\FutballSimulator.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -51,6 +52,7 @@
     <Compile Include="ScheduleHandler.cs" />
     <Compile Include="SeasonSimulator.cs" />
     <Compile Include="TableHandler.cs" />
+    <Compile Include="TableRow.cs" />
     <Compile Include="Team.cs" />
     <Compile Include="TeamEvaluator.cs" />
     <Compile Include="TransferHandler.cs" />

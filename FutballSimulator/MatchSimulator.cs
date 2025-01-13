@@ -1,27 +1,30 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FutballSimulator
 {
     public static class MatchSimulator
     {
         /// <summary>
-        /// Egy mérkőzés eredményét szimulálja a csapatok átlagos értékelése alapján.
+        /// Mérkőzés szimulálása csapatrészek átlagos értékelése alapján.
         /// </summary>
         /// <param name="homeTeam">Hazai csapat.</param>
         /// <param name="awayTeam">Vendég csapat.</param>
-        /// <returns>Gólok száma: hazai és vendég.</returns>
+        /// <returns>A mérkőzés eredménye (hazai és vendég gólok száma).</returns>
         public static (int homeGoals, int awayGoals) SimulateMatch(Team homeTeam, Team awayTeam)
         {
-            Random random = new Random();
-            double homeRating = homeTeam.Players.Average(p => p.Rating);
-            double awayRating = awayTeam.Players.Average(p => p.Rating);
+            // Csapatrészenkénti értékelések kiértékelése mindkét csapatnál
+            var (homeDefense, homeMidfield, homeForward, homeGoalkeeper) = TeamEvaluator.EvaluateTeamRatings(homeTeam);
+            var (awayDefense, awayMidfield, awayForward, awayGoalkeeper) = TeamEvaluator.EvaluateTeamRatings(awayTeam);
 
-            int homeGoals = (int)(random.NextDouble() * (homeRating / 10));
-            int awayGoals = (int)(random.NextDouble() * (awayRating / 10));
+            Random random = new Random();
+
+            // Hazai és vendég csapat támadási és védekezési erőssége
+            double homeAttackStrength = (homeMidfield + homeForward) / 2 + 5; // Hazai előny
+            double awayAttackStrength = (awayMidfield + awayForward) / 2;
+
+            // Gólok szimulálása
+            int homeGoals = (int)(random.NextDouble() * homeAttackStrength / (awayDefense + awayGoalkeeper) * 2);
+            int awayGoals = (int)(random.NextDouble() * awayAttackStrength / (homeDefense + homeGoalkeeper) * 2);
 
             return (homeGoals, awayGoals);
         }
