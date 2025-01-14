@@ -89,7 +89,7 @@ namespace FutballSimulator
         }
 
         /// <summary>
-        /// Frissített csapat keretének mentése fájlba.
+        /// Frissített csapat keretének mentése fájlba a "keretek" mappába.
         /// </summary>
         private static void SaveUpdatedTeam(Team team)
         {
@@ -100,28 +100,45 @@ namespace FutballSimulator
             {
                 Console.Write("\nAdd meg a fájl nevét (pl. ujkeret1.txt): ");
                 string fileName;
+                string fullPath; // Definiáljuk itt a változót, hogy elérhető legyen a ciklus után is.
+
                 while (true)
                 {
                     fileName = Console.ReadLine();
+
                     // Automatikusan hozzáadjuk a .txt kiterjesztést, ha hiányzik
                     if (!fileName.EndsWith(".txt", StringComparison.OrdinalIgnoreCase))
                     {
                         fileName += ".txt";
                     }
 
-                    // Ellenőrizzük, hogy létezik-e a fájl
-                    if (File.Exists(fileName))
+                    // "keretek" mappa útvonalának létrehozása
+                    string directory = "keretek";
+                    if (!Directory.Exists(directory))
                     {
-                        Console.WriteLine($"A '{fileName}' fájl már létezik. Adj meg egy másik nevet:");
+                        Directory.CreateDirectory(directory); // Mappa létrehozása, ha nem létezik
+                    }
+
+                    // Teljes fájl elérési útvonal összeállítása
+                    fullPath = Path.Combine(directory, fileName);
+
+                    // Ellenőrizzük, hogy létezik-e a fájl
+                    if (File.Exists(fullPath))
+                    {
+                        Console.WriteLine($"A '{fileName}' fájl már létezik a 'keretek' mappában. Adj meg egy másik nevet:");
                     }
                     else
                     {
                         break;
                     }
                 }
-                FileHandler.SavePlayersToFile(team.Players, fileName);
-                Console.WriteLine($"A keret mentve: {fileName}");
+
+                // Fájl mentése a "keretek" mappába
+                FileHandler.SavePlayersToFile(team.Players, fullPath);
+                Console.WriteLine($"A keret mentve: {fullPath}");
             }
         }
+
+
     }
 }
