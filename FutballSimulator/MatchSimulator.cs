@@ -7,26 +7,23 @@ namespace FutballSimulator
         /// <summary>
         /// Mérkőzés szimulálása csapatrészek átlagos értékelése alapján.
         /// </summary>
-        /// <param name="homeTeam">Hazai csapat.</param>
-        /// <param name="awayTeam">Vendég csapat.</param>
+        /// <param name="home">Hazai csapat.</param>
+        /// <param name="away">Vendég csapat.</param>
         /// <returns>A mérkőzés eredménye (hazai és vendég gólok száma).</returns>
-        public static (int homeGoals, int awayGoals) SimulateMatch(Team homeTeam, Team awayTeam)
+        public static (int HomeGoals, int AwayGoals) SimulateMatch(Team home, Team away)
         {
-            // Csapatrészenkénti értékelések kiértékelése mindkét csapatnál
-            var (homeDefense, homeMidfield, homeForward, homeGoalkeeper) = TeamEvaluator.EvaluateTeamRatings(homeTeam);
-            var (awayDefense, awayMidfield, awayForward, awayGoalkeeper) = TeamEvaluator.EvaluateTeamRatings(awayTeam);
-
             Random random = new Random();
+            int homeGoals = random.Next(0, 4); // Hazai csapat max 3 gól
+            int awayGoals = random.Next(0, 3); // Vendégcsapat max 2 gól
 
-            // Hazai és vendég csapat támadási és védekezési erőssége
-            double homeAttackStrength = (homeMidfield + homeForward) / 2 + 5; // Hazai előny
-            double awayAttackStrength = (awayMidfield + awayForward) / 2;
-
-            // Gólok szimulálása
-            int homeGoals = (int)(random.NextDouble() * homeAttackStrength / (awayDefense + awayGoalkeeper) * 2);
-            int awayGoals = (int)(random.NextDouble() * awayAttackStrength / (homeDefense + homeGoalkeeper) * 2);
+            // Hazai előny: növeljük a hazai csapat góljait
+            if (random.NextDouble() < 0.2) // 20% esély extra gólra
+            {
+                homeGoals++;
+            }
 
             return (homeGoals, awayGoals);
         }
+
     }
 }
