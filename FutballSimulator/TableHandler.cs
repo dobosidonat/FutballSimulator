@@ -101,7 +101,7 @@ namespace FutballSimulator
 
                 writer.WriteLine("Tabella:");
                 writer.WriteLine("Helyezés | Csapat           | M | GY | D | V | LG | KG | GK | Pont");
-                writer.WriteLine("---------------------------------------------------------------");
+                writer.WriteLine("------------------------------------------------------------------");
 
                 for (int i = 0; i < sortedTable.Count; i++)
                 {
