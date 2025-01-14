@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace FutballSimulator
 {
@@ -54,9 +55,9 @@ namespace FutballSimulator
                     Players = fehervarPlayers
                 };
 
-                // Jelenlegi csapat pozícióinak kiértékelése
-                Console.WriteLine("Kezdő Fehérvár FC:");
-                TeamEvaluator.EvaluateTeamRatings(fehervar);
+                // Jelenlegi csapat posztonkénti átlagainak kiírása
+                Console.WriteLine("\nEredeti Fehérvár FC keret posztonkénti átlagai:");
+                DisplayPositionAverages(fehervar);
 
                 // Átigazolási piac betöltése
                 var transferMarket = FileHandler.LoadPlayersFromFile("atigazolasi_piac.txt");
@@ -74,9 +75,9 @@ namespace FutballSimulator
                     fehervar.AddPlayer(player);
                 }
 
-                // Csapat kiértékelése az igazolások után
-                Console.WriteLine("\nFehérvár FC az igazolások után:");
-                TeamEvaluator.EvaluateTeamRatings(fehervar);
+                // Frissített csapat posztonkénti átlagainak kiírása
+                Console.WriteLine("\nFehérvár FC keret az igazolások után, posztonkénti átlagok:");
+                DisplayPositionAverages(fehervar);
 
                 // Frissített keret mentése
                 SaveUpdatedTeam(fehervar);
@@ -87,6 +88,7 @@ namespace FutballSimulator
             }
             Console.ReadKey();
         }
+
 
         /// <summary>
         /// Frissített csapat keretének mentése fájlba a "keretek" mappába.
@@ -136,6 +138,22 @@ namespace FutballSimulator
                 // Fájl mentése a "keretek" mappába
                 FileHandler.SavePlayersToFile(team.Players, fullPath);
                 Console.WriteLine($"A keret mentve: {fullPath}");
+            }
+        }
+
+        /// <summary>
+        /// Csapat posztonkénti átlagainak kiírása.
+        /// </summary>
+        private static void DisplayPositionAverages(Team team)
+        {
+            var positions = new[] { "GK", "DF", "MF", "FW" }; // Kapus, védő, középpályás, csatár
+
+            foreach (var position in positions)
+            {
+                var playersInPosition = team.Players.Where(p => p.Position == position).ToList();
+                double averageRating = playersInPosition.Any() ? playersInPosition.Average(p => p.Rating) : 0.0;
+
+                Console.WriteLine($"{position}: Átlagos értékelés: {averageRating:F2}");
             }
         }
 
