@@ -1,11 +1,24 @@
 ﻿using FutballSimulator;
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 class Program
 {
     static void Main(string[] args)
     {
+        // Csapatok betöltése fájlból
+        var teams = FileHandler.LoadTeams("ellenfelek/csapat_ertekelesek.txt");
+
+        // Fehérvár FC alapértelmezett keretének betöltése
+        var fehervarPlayers = FileHandler.LoadPlayersFromFile("keretek/fehervar_players.txt");
+        var fehervar = new Team
+        {
+            Name = "Fehérvár FC",
+            Players = fehervarPlayers
+        };
+
+        // Főmenü megjelenítése és felhasználói választás kezelése
         while (true)
         {
             Console.Clear();
@@ -13,26 +26,31 @@ class Program
             Console.WriteLine();
             Console.WriteLine("Válassz a következő lehetőségek közül:");
             Console.WriteLine("1. Igazolások végrehajtása");
-            Console.WriteLine("2. Szezon szimuláció");
+            Console.WriteLine("2. Szezon szimuláció (manuális)");
             Console.WriteLine("3. Tabella megtekintése");
+            Console.WriteLine("4. Automatikus szezon szimuláció kiválasztott kerettel");
             Console.WriteLine("0. Kilépés");
 
             Console.Write("Add meg a választásod: ");
             string input = Console.ReadLine();
 
+            // Választás alapján a megfelelő funkció meghívása
             switch (input)
             {
                 case "1":
-                    TransferHandler.HandleTransfers();
+                    TransferHandler.HandleTransfers(); // Igazolások kezelése
                     break;
                 case "2":
-                    SimulateSeason();
+                    SimulateSeason(teams, fehervar); // Manuális szezon szimuláció
                     break;
                 case "3":
-                    DisplayCurrentTable();
+                    DisplayCurrentTable(); // Tabella megtekintése
+                    break;
+                case "4":
+                    SeasonSimulator.SimulateFullSeasonAutomatically(teams, fehervar); // Automatikus szezon szimuláció
                     break;
                 case "0":
-                    Environment.Exit(0);
+                    Environment.Exit(0); // Kilépés a programból
                     break;
                 default:
                     Console.WriteLine("Érvénytelen választás. Nyomj meg egy gombot a folytatáshoz.");
@@ -43,23 +61,11 @@ class Program
     }
 
     /// <summary>
-    /// A szezon szimuláció elindítása.
+    /// Manuális szezon szimuláció indítása.
     /// </summary>
-    static void SimulateSeason()
+    static void SimulateSeason(List<Team> teams, Team fehervar)
     {
-        // Csapatok betöltése fájlból
-        var teams = FileHandler.LoadTeams("ellenfelek/csapat_ertekelesek.txt");
-
-        // Fehérvár FC keret betöltése
-        var fehervarPlayers = FileHandler.LoadPlayersFromFile("keretek/fehervar_players.txt");
-        var fehervar = new Team
-        {
-            Name = "Fehérvár FC",
-            Players = fehervarPlayers
-        };
-
-        // Szezon szimuláció
-        SeasonSimulator.SimulateSeason(teams, fehervar);
+        SeasonSimulator.SimulateSeason(teams, fehervar); // Szezon szimuláció futtatása
     }
 
     /// <summary>
@@ -67,7 +73,7 @@ class Program
     /// </summary>
     static void DisplayCurrentTable()
     {
-        string tableFile = "eredmenyek/tabella.txt";
+        string tableFile = "eredmenyek/tabella.txt"; // Tabella fájl elérési útja
 
         if (!File.Exists(tableFile))
         {
@@ -76,6 +82,7 @@ class Program
             return;
         }
 
+        // Tabella megjelenítése
         Console.Clear();
         Console.WriteLine("--- Aktuális Tabella ---");
         foreach (var line in File.ReadAllLines(tableFile))

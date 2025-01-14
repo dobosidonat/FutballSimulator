@@ -8,24 +8,17 @@ namespace FutballSimulator
     public static class SeasonSimulator
     {
         /// <summary>
-        /// A szezon szimulációjának fő metódusa.
+        /// Manuális szezon szimuláció.
         /// </summary>
+        /// <param name="teams">A szezonban szereplő csapatok listája.</param>
+        /// <param name="fehervar">Fehérvár FC csapat objektuma.</param>
         public static void SimulateSeason(List<Team> teams, Team fehervar)
         {
-            // Tabella inicializálása
-            Dictionary<string, (int Points, int GoalsFor, int GoalsAgainst, int PlayedMatches)> table;
-            int currentRound;
+            // Tabella inicializálása vagy betöltése
+            var table = InitializeTable(teams, fehervar);
+            int currentRound = 0;
 
-            // Szezon állapotának betöltése, ha van mentés
-            (table, currentRound) = LoadSeasonState();
-
-            // Ha nincs mentett állapot, új tabella inicializálása
-            if (currentRound == 0)
-            {
-                table = InitializeTable(teams, fehervar);
-            }
-
-            // Párosítások generálása a szezonra (33 forduló)
+            // Szezon párosításainak generálása
             var matchups = GenerateSeasonMatchups(teams, fehervar);
 
             // Fordulók szimulálása
@@ -33,22 +26,16 @@ namespace FutballSimulator
             {
                 Console.WriteLine($"\n{round}. forduló eredményei:");
 
-                // Felállás kiválasztása a szimulációhoz
+                // Felállás kiválasztása
                 var formation = ChooseFormation();
 
-                // Aktuális forduló szimulálása
+                // Forduló szimulálása
                 SimulateRound(matchups[round - 1], table, formation);
 
-                // Tabella kiírása a konzolra
+                // Tabella megjelenítése és mentése
                 DisplayTable(table);
-
-                // Forduló eredményeinek mentése
-                SaveRoundResults(matchups[round - 1], table, round);
-
-                // Tabella mentése fájlba
-                SaveTableToFile(table, round);
-
-                // Szezon állapotának mentése
+                SaveRoundResults(matchups[round - 1], table, round, "manual");
+                SaveTableToFile(table, round, "manual");
                 SaveSeasonState(table, round);
 
                 // Kérdés a következő forduló folytatásáról
@@ -60,76 +47,68 @@ namespace FutballSimulator
             }
 
             Console.WriteLine("\nA szezon mentésre került. Később folytathatja!");
-            Console.ReadKey();
         }
 
         /// <summary>
-        /// Tabella inicializálása az összes csapat számára.
+        /// Tabella inicializálása.
         /// </summary>
         private static Dictionary<string, (int Points, int GoalsFor, int GoalsAgainst, int PlayedMatches)> InitializeTable(List<Team> teams, Team fehervar)
         {
             var table = new Dictionary<string, (int Points, int GoalsFor, int GoalsAgainst, int PlayedMatches)>();
 
-            // Minden csapat kezdő adatai (0 pont, 0 gól)
+            // Minden csapat kezdő adatainak inicializálása
             foreach (var team in teams)
             {
                 table[team.Name] = (0, 0, 0, 0);
             }
+            table[fehervar.Name] = (0, 0, 0, 0); // Fehérvár hozzáadása
 
-            // Fehérvár hozzáadása a táblához
-            table[fehervar.Name] = (0, 0, 0, 0);
             return table;
         }
 
         /// <summary>
-        /// Szezon párosításainak generálása Round Robin logikával.
+        /// Szezon párosításainak generálása.
         /// </summary>
         private static List<List<(Team Home, Team Away)>> GenerateSeasonMatchups(List<Team> teams, Team fehervar)
         {
             var allTeams = new List<Team>(teams) { fehervar }; // Fehérvár hozzáadása
             var matchups = new List<List<(Team Home, Team Away)>>();
 
-            for (int cycle = 0; cycle < 3; cycle++) // Háromszoros kör
+            for (int cycle = 0; cycle < 3; cycle++) // Három kör a szezonban
             {
-                var roundRobinRounds = RoundRobin(allTeams, cycle % 2 == 0); // RoundRobin hívása
+                var roundRobinRounds = RoundRobin(allTeams, cycle % 2 == 0); // RoundRobin generálás
                 matchups.AddRange(roundRobinRounds);
             }
 
             return matchups;
         }
 
-
         /// <summary>
-        /// Round Robin logika egy teljes kör generálásához.
+        /// Round Robin algoritmus, amely az aktuális párosításokat generálja.
         /// </summary>
         private static List<List<(Team Home, Team Away)>> RoundRobin(List<Team> teams, bool homeFirst)
         {
             var rounds = new List<List<(Team Home, Team Away)>>();
             var teamCount = teams.Count;
 
-            // Ha páratlan a csapatok száma, dummy csapat hozzáadása
+            // Pihenő csapat hozzáadása, ha páratlan a létszám
             if (teamCount % 2 != 0)
             {
                 teams.Add(new Team { Name = "Pihenő" });
                 teamCount++;
             }
 
+            // Fordulók generálása
             for (int round = 0; round < teamCount - 1; round++)
             {
                 var roundMatchups = new List<(Team Home, Team Away)>();
+
                 for (int i = 0; i < teamCount / 2; i++)
                 {
                     var home = teams[i];
                     var away = teams[teamCount - 1 - i];
 
-                    if (homeFirst)
-                    {
-                        roundMatchups.Add((home, away));
-                    }
-                    else
-                    {
-                        roundMatchups.Add((away, home));
-                    }
+                    roundMatchups.Add(homeFirst ? (home, away) : (away, home));
                 }
 
                 rounds.Add(roundMatchups);
@@ -143,19 +122,17 @@ namespace FutballSimulator
             return rounds;
         }
 
-
         /// <summary>
-        /// Egy forduló szimulálása.
+        /// Forduló szimulálása az adott párosításokkal.
         /// </summary>
         private static void SimulateRound(List<(Team Home, Team Away)> roundMatchups, Dictionary<string, (int Points, int GoalsFor, int GoalsAgainst, int PlayedMatches)> table, (int Defenders, int Midfielders, int Forwards) formation)
         {
             var random = new Random();
 
-            // Minden meccs szimulálása az aktuális fordulóban
             foreach (var (home, away) in roundMatchups)
             {
-                var homeGoals = random.Next(0, 5);
-                var awayGoals = random.Next(0, 5);
+                var homeGoals = random.Next(0, 5); // Hazai gólok
+                var awayGoals = random.Next(0, 5); // Vendég gólok
                 Console.WriteLine($"{home.Name} {homeGoals} - {awayGoals} {away.Name}");
                 UpdateTable(table, home, away, homeGoals, awayGoals);
             }
@@ -166,7 +143,7 @@ namespace FutballSimulator
         /// </summary>
         private static void UpdateTable(Dictionary<string, (int Points, int GoalsFor, int GoalsAgainst, int PlayedMatches)> table, Team home, Team away, int homeGoals, int awayGoals)
         {
-            // Győzelem, döntetlen vagy vereség esetén a pontok és statisztikák frissítése
+            // Győzelem, vereség vagy döntetlen esetén a megfelelő adatok frissítése
             if (homeGoals > awayGoals)
             {
                 table[home.Name] = (table[home.Name].Points + 3, table[home.Name].GoalsFor + homeGoals, table[home.Name].GoalsAgainst + awayGoals, table[home.Name].PlayedMatches + 1);
@@ -213,32 +190,31 @@ namespace FutballSimulator
         /// <summary>
         /// Forduló eredményeinek mentése fájlba.
         /// </summary>
-        private static void SaveRoundResults(List<(Team Home, Team Away)> matchups, Dictionary<string, (int Points, int GoalsFor, int GoalsAgainst, int PlayedMatches)> table, int round)
+        private static void SaveRoundResults(List<(Team Home, Team Away)> matchups, Dictionary<string, (int Points, int GoalsFor, int GoalsAgainst, int PlayedMatches)> table, int round, string keretNev)
         {
-            string resultsFile = "eredmenyek/fordulo_eredmenyek.txt";
+            string resultsFile = $"eredmenyek/automatikus_szezon_eredmenyek_{keretNev}.txt";
 
             using (StreamWriter writer = new StreamWriter(resultsFile, true))
             {
                 writer.WriteLine($"--- {round}. forduló eredményei ---");
                 foreach (var (home, away) in matchups)
                 {
-                    var homeGoals = table[home.Name].GoalsFor - table[home.Name].GoalsAgainst;
-                    var awayGoals = table[away.Name].GoalsFor - table[away.Name].GoalsAgainst;
-
-                    writer.WriteLine($"{home.Name} {homeGoals} - {awayGoals} {away.Name}");
+                    writer.WriteLine($"{home.Name} - {away.Name}");
                 }
                 writer.WriteLine();
             }
+
+            Console.WriteLine($"Forduló eredményei mentve: {resultsFile}");
         }
 
         /// <summary>
-        /// Tabella mentése fájlba.
+        /// Tabella mentése fájlba fordulónként.
         /// </summary>
-        private static void SaveTableToFile(Dictionary<string, (int Points, int GoalsFor, int GoalsAgainst, int PlayedMatches)> table, int round)
+        private static void SaveTableToFile(Dictionary<string, (int Points, int GoalsFor, int GoalsAgainst, int PlayedMatches)> table, int round, string keretNev)
         {
-            string filePath = "eredmenyek/tabella.txt";
+            string filePath = $"eredmenyek/automatikus_tabella_{keretNev}.txt";
 
-            using (StreamWriter writer = new StreamWriter(filePath))
+            using (StreamWriter writer = new StreamWriter(filePath, true))
             {
                 writer.WriteLine($"--- Tabella - {round}. forduló ---");
                 writer.WriteLine("Helyezés | Csapat            | LM | LG | KG | GK | PSZ");
@@ -261,7 +237,7 @@ namespace FutballSimulator
                 }
             }
 
-            Console.WriteLine($"\nTabella mentve a következő fájlba: {filePath}");
+            Console.WriteLine($"Tabella mentve: {filePath}");
         }
 
         /// <summary>
@@ -274,47 +250,13 @@ namespace FutballSimulator
             using (StreamWriter writer = new StreamWriter(filePath))
             {
                 writer.WriteLine(currentRound);
-
                 foreach (var kvp in table)
                 {
                     writer.WriteLine($"{kvp.Key};{kvp.Value.Points};{kvp.Value.GoalsFor};{kvp.Value.GoalsAgainst};{kvp.Value.PlayedMatches}");
                 }
             }
 
-            Console.WriteLine($"\nA szezon állapota mentésre került a következő fájlba: {filePath}");
-        }
-
-        /// <summary>
-        /// Szezon állapotának betöltése fájlból.
-        /// </summary>
-        private static (Dictionary<string, (int Points, int GoalsFor, int GoalsAgainst, int PlayedMatches)>, int) LoadSeasonState()
-        {
-            string filePath = "eredmenyek/season_state.txt";
-            if (!File.Exists(filePath))
-            {
-                return (new Dictionary<string, (int Points, int GoalsFor, int GoalsAgainst, int PlayedMatches)>(), 0);
-            }
-
-            var table = new Dictionary<string, (int Points, int GoalsFor, int GoalsAgainst, int PlayedMatches)>();
-            int round = 0;
-
-            using (StreamReader reader = new StreamReader(filePath))
-            {
-                round = int.Parse(reader.ReadLine());
-                while (!reader.EndOfStream)
-                {
-                    var line = reader.ReadLine().Split(';');
-                    string teamName = line[0];
-                    int points = int.Parse(line[1]);
-                    int goalsFor = int.Parse(line[2]);
-                    int goalsAgainst = int.Parse(line[3]);
-                    int playedMatches = int.Parse(line[4]);
-
-                    table[teamName] = (points, goalsFor, goalsAgainst, playedMatches);
-                }
-            }
-
-            return (table, round);
+            Console.WriteLine($"Szezon állapota mentve: {filePath}");
         }
 
         /// <summary>
@@ -331,29 +273,78 @@ namespace FutballSimulator
             Console.Write("Választásod: ");
             int choice = int.Parse(Console.ReadLine());
 
-            (int Defenders, int Midfielders, int Forwards) formation;
-
             switch (choice)
             {
                 case 1:
-                    formation = (4, 4, 2);
-                    break;
+                    return (4, 4, 2);
                 case 2:
-                    formation = (4, 3, 3);
-                    break;
+                    return (4, 3, 3);
                 case 3:
-                    formation = (3, 5, 2);
-                    break;
+                    return (3, 5, 2);
                 case 4:
-                    formation = (5, 3, 2);
-                    break;
+                    return (5, 3, 2);
                 default:
-                    formation = (4, 4, 2); // Alapértelmezett felállás
-                    break;
+                    return (4, 4, 2); // Alapértelmezett felállás
             }
 
-            return formation;
-
         }
+        /// <summary>
+        /// Automatikus szezon szimuláció az összes forduló végigjátszásával, kiválasztott kerettel.
+        /// Az eredmények és a tabella mentésre kerül fájlokba.
+        /// </summary>
+        /// <param name="teams">A szezonban szereplő csapatok listája.</param>
+        /// <param name="fehervar">A Fehérvár FC csapat objektuma.</param>
+        public static void SimulateFullSeasonAutomatically(List<Team> teams, Team fehervar)
+        {
+            // Keretfájlok betöltése
+            var keretFiles = Directory.GetFiles("keretek", "*.txt").ToList();
+
+            Console.WriteLine("\nVálassz egy keretet:");
+            for (int i = 0; i < keretFiles.Count; i++)
+            {
+                Console.WriteLine($"{i + 1}. {Path.GetFileName(keretFiles[i])}");
+            }
+
+            // Keret kiválasztása
+            Console.Write("Keret száma: ");
+            int keretChoice = int.Parse(Console.ReadLine()) - 1;
+
+            // Érvénytelen választás esetén alapértelmezett keret betöltése
+            if (keretChoice < 0 || keretChoice >= keretFiles.Count)
+            {
+                Console.WriteLine("Érvénytelen választás. Alapértelmezett keret kerül betöltésre.");
+                keretChoice = 0;
+            }
+
+            // Kiválasztott keret betöltése
+            var selectedKeret = FileHandler.LoadPlayersFromFile(keretFiles[keretChoice]);
+            fehervar.Players = selectedKeret;
+
+            Console.Clear();
+            Console.WriteLine($"Kiválasztott keret: {Path.GetFileNameWithoutExtension(keretFiles[keretChoice])}");
+
+            // Tabella inicializálása
+            var table = InitializeTable(teams, fehervar);
+            var matchups = GenerateSeasonMatchups(teams, fehervar); // Szezon párosításainak generálása
+
+            // Fordulók szimulálása
+            for (int round = 1; round <= 33; round++)
+            {
+                Console.WriteLine($"\n{round}. forduló eredményei:");
+
+                // Felállás kiválasztása minden fordulóhoz
+                var formation = ChooseFormation();
+
+                // Forduló szimulálása
+                SimulateRound(matchups[round - 1], table, formation);
+
+                // Eredmények mentése
+                SaveRoundResults(matchups[round - 1], table, round, Path.GetFileNameWithoutExtension(keretFiles[keretChoice]));
+                SaveTableToFile(table, round, Path.GetFileNameWithoutExtension(keretFiles[keretChoice]));
+            }
+
+            Console.WriteLine("\nAz automatikus szezon szimuláció véget ért!");
+        }
+
     }
 }
