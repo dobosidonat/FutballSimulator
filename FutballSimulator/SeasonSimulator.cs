@@ -309,7 +309,6 @@ namespace FutballSimulator
             Console.Write("Keret száma: ");
             int keretChoice = int.Parse(Console.ReadLine()) - 1;
 
-            // Érvénytelen választás esetén alapértelmezett keret betöltése
             if (keretChoice < 0 || keretChoice >= keretFiles.Count)
             {
                 Console.WriteLine("Érvénytelen választás. Alapértelmezett keret kerül betöltésre.");
@@ -330,21 +329,58 @@ namespace FutballSimulator
             // Fordulók szimulálása
             for (int round = 1; round <= 33; round++)
             {
-                Console.WriteLine($"\n{round}. forduló eredményei:");
+                Console.WriteLine($"\n{round}. forduló eredményei szimulálása...");
 
-                // Felállás kiválasztása minden fordulóhoz
-                var formation = ChooseFormation();
+                // Forduló szimulálása (alapértelmezett felállással)
+                SimulateRound(matchups[round - 1], table, (4, 4, 2)); // Alapértelmezett: 4-4-2
 
-                // Forduló szimulálása
-                SimulateRound(matchups[round - 1], table, formation);
-
-                // Eredmények mentése
+                // Eredmények mentése fájlba
                 SaveRoundResults(matchups[round - 1], table, round, Path.GetFileNameWithoutExtension(keretFiles[keretChoice]));
-                SaveTableToFile(table, round, Path.GetFileNameWithoutExtension(keretFiles[keretChoice]));
             }
 
-            Console.WriteLine("\nAz automatikus szezon szimuláció véget ért!");
+            // Végső tabella mentése
+            SaveFinalTableToFile(table, Path.GetFileNameWithoutExtension(keretFiles[keretChoice]));
+
+            Console.WriteLine("\nAz automatikus szezon szimuláció véget ért! A tabella és az eredmények fájlokba mentve.");
+            Console.ReadKey();
         }
+
+        /// <summary>
+        /// Végső tabella mentése fájlba a szezon végén.
+        /// </summary>
+        /// <param name="table">Az aktuális tabella állása.</param>
+        /// <param name="keretNev">A kiválasztott keret neve.</param>
+        private static void SaveFinalTableToFile(Dictionary<string, (int Points, int GoalsFor, int GoalsAgainst, int PlayedMatches)> table, string keretNev)
+        {
+            string filePath = $"szimulalteredmenyek/veges_tabella_{keretNev}.txt";
+
+            using (StreamWriter writer = new StreamWriter(filePath))
+            {
+                writer.WriteLine("--- Végső Tabella ---");
+                writer.WriteLine("Helyezés | Csapat            | LM | LG | KG | GK | PSZ");
+                writer.WriteLine(new string('-', 50));
+
+                // Tabella rendezése pontszám, gólkülönbség és lőtt gól alapján
+                var sortedTable = table.OrderByDescending(t => t.Value.Points)
+                                       .ThenByDescending(t => t.Value.GoalsFor - t.Value.GoalsAgainst)
+                                       .ThenByDescending(t => t.Value.GoalsFor)
+                                       .ToList();
+
+                int rank = 1;
+                foreach (var kvp in sortedTable)
+                {
+                    string teamName = kvp.Key;
+                    var stats = kvp.Value;
+                    int goalDifference = stats.GoalsFor - stats.GoalsAgainst;
+
+                    writer.WriteLine($"{rank,8} | {teamName,-16} | {stats.PlayedMatches,2} | {stats.GoalsFor,2} | {stats.GoalsAgainst,2} | {goalDifference,3} | {stats.Points,3}");
+                    rank++;
+                }
+            }
+
+            Console.WriteLine($"Végső tabella mentve: {filePath}");
+        }
+
 
     }
 }
