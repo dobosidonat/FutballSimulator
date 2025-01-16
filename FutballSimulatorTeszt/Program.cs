@@ -73,7 +73,7 @@ class Program
     /// </summary>
     static void DisplayCurrentTable()
     {
-        string tableFile = "eredmenyek/tabella.txt"; // Tabella fájl elérési útja
+        string tableFile = "eredmenyek/tabella_manual.txt"; // Tabella fájl elérési útja
 
         if (!File.Exists(tableFile))
         {
