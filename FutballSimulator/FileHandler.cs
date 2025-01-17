@@ -10,8 +10,10 @@ namespace FutballSimulator
     public static class FileHandler
     {
         /// <summary>
-        /// .
+        /// Betölti a csapatokat egy fájlból, és minden csapathoz generálja a játékosokat a megadott értékelések alapján.
         /// </summary>
+        /// <param name="filePath">A fájl elérési útvonala, amely tartalmazza a csapatok adatait.</param>
+        /// <returns>A betöltött csapatok listája.</returns>
         public static List<Team> LoadTeams(string filePath)
         {
             var teams = new List<Team>();
@@ -35,6 +37,7 @@ namespace FutballSimulator
 
             return teams;
         }
+
 
         /// <summary>
         /// Játékosok generálása a csapatrészek értékelései alapján.
@@ -138,8 +141,5 @@ namespace FutballSimulator
                 Console.WriteLine($"Hiba történt a fájl mentésekor: {ex.Message}");
             }
         }
-
-     
-
     }
 }

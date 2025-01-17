@@ -161,24 +161,80 @@ namespace FutballSimulator
             return rounds;
         }
 
+        // Egyetlen Random objektum az egész szezonra, így minden fordulóban valódi véletlenszerűség lesz
+        private static readonly Random random = new Random();
+
         /// <summary>
-        /// Forduló szimulálása az adott párosításokkal.
+        /// Egy forduló (játékhet) szimulációja, ahol minden csapat lejátszik egy mérkőzést.
+        /// A gólokat a csapatok értékelése alapján generálja, és frissíti a tabellát.
         /// </summary>
+        /// <param name="roundMatchups">A forduló párosításai</param>
+        /// <param name="table">Az aktuális bajnoki tabella</param>
+        /// <param name="formation">A csapatok választott formációja (nem használt jelenleg, de később bővíthető)</param>
+        /// <param name="matchResults">A szótár, amely eltárolja a mérkőzések eredményeit</param>
         private static void SimulateRound(List<(Team Home, Team Away)> roundMatchups, Dictionary<string, (int Points, int GoalsFor, int GoalsAgainst, int PlayedMatches, int Wins, int Draws, int Losses)> table, (int Defenders, int Midfielders, int Forwards) formation, Dictionary<(string, string), (int, int)> matchResults)
         {
-            var random = new Random();
-
-            foreach (var (home, away) in roundMatchups)
+            foreach (var (home, away) in roundMatchups) // Végigmegyünk minden meccspárosításon
             {
-                var homeGoals = random.Next(0, 5);
-                var awayGoals = random.Next(0, 5);
+                // Csapatok értékelésének meghatározása (játékosok átlagos értékelése alapján)
+                double homeRating = home.Players.Average(p => p.Rating);
+                double awayRating = away.Players.Average(p => p.Rating);
 
-                
+                // Hazai pálya előnyének figyelembevétele
+                double homeAdvantage = 1.1;  // 10%-os erősítés hazai csapatnak
+                double adjustedHomeRating = homeRating * homeAdvantage;
+                double adjustedAwayRating = awayRating;
+
+                // Gólok számának előrejelzése a csapatok teljesítménye alapján
+                double baseGoals = 1.5; // Egy csapat átlagosan ennyi gólt szerez egy meccsen
+                double homeExpectedGoals = baseGoals * (adjustedHomeRating / 100); // Hazai gólok várható száma
+                double awayExpectedGoals = baseGoals * (adjustedAwayRating / 100); // Vendég gólok várható száma
+
+                // Valódi gólok generálása (Poisson-eloszlás vagy más módszerrel)
+                int homeGoals = GenerateGoals(homeExpectedGoals);
+                int awayGoals = GenerateGoals(awayExpectedGoals);
+
+                // Túl sok döntetlen csökkentése (25% eséllyel módosítunk rajta)
+                if (homeGoals == awayGoals && random.NextDouble() < 0.25)
+                {
+                    if (random.NextDouble() < 0.5) homeGoals++; // Hazai csapat kap egy extra gólt
+                    else awayGoals++; // Vendég csapat kap egy extra gólt
+                }
+
+                // Meccs eredményének mentése a `matchResults` szótárba
                 matchResults[(home.Name, away.Name)] = (homeGoals, awayGoals);
 
+                // Tabella frissítése a meccs eredménye alapján
                 UpdateTable(table, home, away, homeGoals, awayGoals);
             }
         }
+
+
+
+
+
+        /// <summary>
+        /// Poisson-alapú gólgenerálás, hogy reálisabb meccseredményeket kapjunk.
+        /// </summary>
+        /// <param name="averageGoals">A csapat átlagos góltermése.</param>
+        /// <returns>A generált gólok száma.</returns>
+        private static int GenerateGoals(double averageGoals)
+        {
+            Random random = new Random();
+            double lambda = averageGoals; // Átlagos gólok száma
+            double L = Math.Exp(-lambda);
+            int k = 0;
+            double p = 1.0;
+
+            do
+            {
+                k++;
+                p *= random.NextDouble();
+            } while (p > L);
+
+            return k - 1;
+        }
+
 
         /// <summary>
         /// Tabella frissítése a meccseredmények alapján.
