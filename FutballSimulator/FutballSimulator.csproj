@@ -44,17 +44,11 @@
   <ItemGroup>
     <Compile Include="BudgetHandler.cs" />
     <Compile Include="FileHandler.cs" />
-    <Compile Include="FormationHandler.cs" />
-    <Compile Include="MatchHandler.cs" />
     <Compile Include="MatchSimulator.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ScheduleHandler.cs" />
     <Compile Include="SeasonSimulator.cs" />
-    <Compile Include="TableHandler.cs" />
-    <Compile Include="TableRow.cs" />
     <Compile Include="Team.cs" />
-    <Compile Include="TeamEvaluator.cs" />
     <Compile Include="TransferHandler.cs" />
     <Compile Include="TransferOptimizer.cs" />
   </ItemGroup>

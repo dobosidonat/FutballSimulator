@@ -28,15 +28,6 @@ namespace FutballSimulator
         public List<Player> Players { get; set; } = new List<Player>();
 
         /// <summary>
-        /// A csapat játékosainak átlagos értékelését számítja ki.
-        /// Ez egy kifejezés alapú tulajdonság, amely LINQ lambda kifejezést használ a számításban
-        /// if-else használatával is meg lehetett volna oldani de ez így rövidebb
-        /// </summary>
-        public double AverageRating => Players.Count > 0 
-            ? Players.Average(p => p.Rating) 
-            : 0;
-
-        /// <summary>
         /// Játékos hozzáadása a csapathoz és a költségvetés frissítése.
         /// </summary>
         /// <param name="player">A hozzáadandó játékos.</param>
