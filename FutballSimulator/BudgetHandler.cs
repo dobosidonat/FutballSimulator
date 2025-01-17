@@ -20,16 +20,6 @@ namespace FutballSimulator
         public static double LoadBudgetFromFile(string filePath)
         {
             return double.Parse(File.ReadAllText(filePath).Trim());
-        }
-
-        /// <summary>
-        /// Ment egy költségvetési értéket egy szöveges fájlba.
-        /// </summary>
-        /// <param name="budget">A mentendő költségvetés.</param>
-        /// <param name="filePath">A fájl elérési útvonala.</param>
-        public static void SaveBudgetToFile(double budget, string filePath)
-        {
-            File.WriteAllText(filePath, budget.ToString());
-        }
+        }      
     }
 }

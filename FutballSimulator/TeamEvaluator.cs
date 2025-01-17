@@ -2,6 +2,9 @@
 
 namespace FutballSimulator
 {
+    /// <summary>
+    /// Statikus osztály, amely egy csapat játékosait értékeli, és kiszámolja az átlagos értékelésüket csapatrészenként
+    /// </summary>
     public static class TeamEvaluator
     {
         /// <summary>

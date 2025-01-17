@@ -35,15 +35,5 @@ namespace FutballSimulator
         /// //Játékos piaci értéke
         /// </summary>
         public double MarketValue { get; set; } 
-
-
-        /// <summary>
-        /// A játékos adatait tartalmazó szöveges reprezentációt ad vissza.
-        /// </summary>
-        /// <returns>Szöveg, amely tartalmazza a játékos adatait.</returns>
-        public override string ToString()
-        {
-            return $"{Name} ({Position}) - Rating: {Rating}, Value: {MarketValue:C}";
-        }
     }
 }

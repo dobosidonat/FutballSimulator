@@ -51,7 +51,7 @@ namespace FutballSimulator
                 var fehervar = new Team
                 {
                     Name = "Fehérvár FC",
-                    Budget = BudgetHandler.LoadBudgetFromFile(testFile),
+                    Budget = BudgetHandler.LoadBudgetFromFile(testFile), //Teszt budget fájl betöltése
                     Players = fehervarPlayers
                 };
 
@@ -62,11 +62,9 @@ namespace FutballSimulator
                 // Átigazolási piac betöltése
                 var transferMarket = FileHandler.LoadPlayersFromFile("atigazolasi_piac.txt");
 
-                // Javulási tűréshatár meghatározása a költségvetés alapján
-                double improvementThreshold = TransferOptimizer.GetImprovementThreshold(fehervar.Budget);
 
-                // Optimális igazolások meghatározása
-                var bestTransfers = TransferOptimizer.OptimizeTransfers(transferMarket, fehervar.Budget, fehervar.Players, improvementThreshold);
+                // Optimális igazolások meghatározása Dinamikus programozással
+                var bestTransfers = TransferOptimizer.OptimizeTransfers(transferMarket, fehervar.Budget, fehervar.Players);
 
                 Console.WriteLine("\nIgazolt játékosok:");
                 foreach (var player in bestTransfers)
@@ -151,9 +149,12 @@ namespace FutballSimulator
             foreach (var position in positions)
             {
                 var playersInPosition = team.Players.Where(p => p.Position == position).ToList();
-                double averageRating = playersInPosition.Any() ? playersInPosition.Average(p => p.Rating) : 0.0;
 
-                Console.WriteLine($"{position}: Átlagos értékelés: {averageRating:F2}");
+                // ellenőrzi, hogy van-e játékos az adott pozícióban, ha nincs akkor 0.0 az átlag, ha igen átlagot számol
+                // ez egy rövidített if-else ahol a ? az if : az else gyakorlatilag
+                double averageRating = playersInPosition.Any() ? playersInPosition.Average(p => p.Rating) : 0.0; 
+
+                Console.WriteLine($"{position}: Átlagos értékelés: {averageRating:F2}"); //F2 azt jelenti, hogy fixpontos tört és a tiezedes pont/vessző után 2 számjegyet ír ki
             }
         }
 
