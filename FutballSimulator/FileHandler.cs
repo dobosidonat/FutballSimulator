@@ -4,6 +4,9 @@ using System.IO;
 
 namespace FutballSimulator
 {
+    /// <summary>
+    /// Statikus osztály a csapatok fájljainak kezeléséhez
+    /// </summary>
     public static class FileHandler
     {
         /// <summary>
@@ -63,6 +66,12 @@ namespace FutballSimulator
 
             return players;
         }
+
+        /// <summary>
+        /// Játékosok beolvasás egy fájlból egy listába
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <returns></returns>
         public static List<Player> LoadPlayersFromFile(string filePath)
         {
             var players = new List<Player>();
@@ -98,6 +107,11 @@ namespace FutballSimulator
             return players;
         }
 
+        /// <summary>
+        /// Ezt az igazolásoknál fogjuk meghívni, a program által igazolt játékosokat ez alapján fogjuk menteni egy fájlba
+        /// </summary>
+        /// <param name="players"></param>
+        /// <param name="filePath"></param>
         public static void SavePlayersToFile(List<Player> players, string filePath)
         {
             try
@@ -111,8 +125,10 @@ namespace FutballSimulator
                 var lines = new List<string>();
                 foreach (var player in players)
                 {
+                    //A :F1 egy formátumsztring, az F (fixed) biztosítja, hogy tizedes vesző/ponttal fogja kiírni a számot
+                    //Az 1 pedig azt jelenti, hogy az egész rész, után 1 tizedes jegyet tart meg
                     lines.Add($"{player.Name};{player.Position};{player.Age};{player.Rating:F1};{player.MarketValue}");
-                }
+                }   
 
                 File.WriteAllLines(filePath, lines);
                 Console.WriteLine($"A játékosok sikeresen mentve lettek a következő fájlba: {filePath}");

@@ -18,11 +18,11 @@ class Program
             Players = fehervarPlayers
         };
 
-        // Főmenü megjelenítése és felhasználói választás kezelése
+        // Főmenü megjelenítése és felhasználó által választott opcióra írt funkció meghívása
         while (true)
         {
             Console.Clear();
-            Console.WriteLine("\t===== Fehérvár FC Menedzser Program =====");
+            Console.WriteLine("\t\t\t\t\t===== Fehérvár FC Menedzser Program =====");
             Console.WriteLine();
             Console.WriteLine("Válassz a következő lehetőségek közül:");
             Console.WriteLine("1. Igazolások végrehajtása");
@@ -41,13 +41,13 @@ class Program
                     TransferHandler.HandleTransfers(); // Igazolások kezelése
                     break;
                 case "2":
-                    SimulateSeason(teams, fehervar); // Manuális szezon szimuláció
+                    SimulateSeason(teams, fehervar); //Azezon szimulációja egyesével
                     break;
                 case "3":
                     DisplayCurrentTable(); // Tabella megtekintése
                     break;
                 case "4":
-                    SeasonSimulator.SimulateFullSeasonAutomatically(teams, fehervar); // Automatikus szezon szimuláció
+                    SeasonSimulator.SimulateFullSeasonAutomatically(teams, fehervar); // Teljes szezon leszimulálása
                     break;
                 case "0":
                     Environment.Exit(0); // Kilépés a programból

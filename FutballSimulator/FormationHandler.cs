@@ -4,11 +4,15 @@ using System.Linq;
 
 namespace FutballSimulator
 {
+    /// <summary>
+    /// Lehet választani felállást a meccsek leszimulálása előtt, ez a statikus osztály felel érte
+    /// </summary>
     public static class FormationHandler
     {
         /// <summary>
-        /// Felhasználótól bekéri a kívánt felállást.
+        /// A felhasznlótól bekér egy felállást
         /// </summary>
+        /// <returns>A választottt formáció alapján meghatározza, hogy melyik posztra hány játékos kell</returns>
         public static (int defenders, int midfielders, int forwards) GetFormation()
         {
             Console.WriteLine("Add meg a kívánt felállást (pl. 4-4-2):");
@@ -28,8 +32,13 @@ namespace FutballSimulator
         }
 
         /// <summary>
-        /// Kiválasztja a megadott felállás alapján a legerősebb csapatot.
+        /// Kiválasztja a legerősebb csapatot
         /// </summary>
+        /// <param name="team">A csapat játékosai</param>
+        /// <param name="defenders">Védők</param>
+        /// <param name="midfielders">Középpályások</param>
+        /// <param name="forwards">Támadók</param>
+        /// <returns>bestTeam= a legerősebb csapat Lista</returns>
         public static List<Player> GetBestTeam(Team team, int defenders, int midfielders, int forwards)
         {
             var bestDefenders = team.Players.Where(p => p.Position == "DF")

@@ -11,11 +11,30 @@ namespace FutballSimulator
     /// </summary>
     public class Player
     {
-        public string Name { get; set; }    //Játékos neve
-        public string Position { get; set; } //Játékos pozíciója
-        public int Age { get; set; }    //Játékos kora
-        public double Rating { get; set; }  //Játékos értékelése (0-100)
-        public double MarketValue { get; set; } //Játékos piaci értéke
+        /// <summary>
+        /// Játékos neve 
+        /// </summary>
+        public string Name { get; set; }
+
+        /// <summary>
+        ///Játékos pozíciója
+        /// </summary>
+        public string Position { get; set; }
+
+        /// <summary>
+        /// Játékos kora 
+        /// </summary>
+        public int Age { get; set; }
+
+        /// <summary>
+        /// Játékos értékelése (0-100)
+        /// </summary>
+        public double Rating { get; set; }
+
+        /// <summary>
+        /// //Játékos piaci értéke
+        /// </summary>
+        public double MarketValue { get; set; } 
 
 
         /// <summary>
