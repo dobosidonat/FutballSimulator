@@ -10,7 +10,7 @@ namespace FutballSimulator
     public static class FileHandler
     {
         /// <summary>
-        /// Csapatok betöltése a megadott fájlból, kivéve a Fehérvár FC-t.
+        /// .
         /// </summary>
         public static List<Team> LoadTeams(string filePath)
         {
@@ -138,6 +138,8 @@ namespace FutballSimulator
                 Console.WriteLine($"Hiba történt a fájl mentésekor: {ex.Message}");
             }
         }
+
+     
 
     }
 }

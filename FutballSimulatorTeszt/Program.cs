@@ -47,7 +47,7 @@ class Program
                     DisplayCurrentTable(); // Tabella megtekintése
                     break;
                 case "4":
-                    SeasonSimulator.SimulateFullSeasonAutomatically(teams, fehervar); // Teljes szezon leszimulálása
+                    SeasonSimulator.SimulateFullSeasonAutomatically(teams, fehervar);   // Teljes szezon leszimulálása
                     break;
                 case "0":
                     Environment.Exit(0); // Kilépés a programból

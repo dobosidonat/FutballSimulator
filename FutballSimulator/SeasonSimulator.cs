@@ -390,27 +390,61 @@ namespace FutballSimulator
 
         }
 
+
         /// <summary>
         /// Automatikus szezon szimuláció az összes forduló végigjátszásával.
         /// Az eredmények és a végső tabella a `szimulalteredmenyek/` mappába kerülnek.
         /// </summary>
-        /// <param name="teams">A szezonban szereplő csapatok listája.</param>
-        /// <param name="fehervar">A Fehérvár FC csapat objektuma.</param>
+        /// <param name="teams">A csapatok kivéve a Fehérvár FC</param>
+        /// <param name="fehervar">Fehérvár FC</param>
         public static void SimulateFullSeasonAutomatically(List<Team> teams, Team fehervar)
         {
+            // 🔹 1. Keretek mappa beolvasása
+            string keretMappa = "keretek";
+            var availableKits = Directory.GetFiles(keretMappa, "*.txt").Select(Path.GetFileNameWithoutExtension).ToList();
+
+            if (availableKits.Count == 0)
+            {
+                Console.WriteLine("Nincsenek elérhető keretek!");
+                return;
+            }
+
+            // 🔹 2. Keretek listázása a konzolon
+            Console.WriteLine("\nVálassz egy keretet a következők közül:");
+            for (int i = 0; i < availableKits.Count; i++)
+            {
+                Console.WriteLine($"{i + 1}. {availableKits[i]}");
+            }
+
+            // 🔹 3. Felhasználó input bekérése
+            Console.Write("\nAdd meg a választott keret számát: ");
+            int selectedKitIndex;
+            while (!int.TryParse(Console.ReadLine(), out selectedKitIndex) || selectedKitIndex < 1 || selectedKitIndex > availableKits.Count)
+            {
+                Console.Write("Hibás bemenet! Adj meg egy érvényes számot: ");
+            }
+
+            // 🔹 4. Kiválasztott keret beolvasása (csak a Fehérvár FC-re vonatkozóan)
+            string chosenKit = availableKits[selectedKitIndex - 1];
+            Console.WriteLine($"\nA választott keret: {chosenKit}");
+
+            // 🔹 5. Fehérvár játékoskeretének frissítése
+            fehervar.Players = FileHandler.LoadPlayersFromFile($"{keretMappa}/{chosenKit}.txt");
+
+            // 🔹 6. Szezon szimuláció a kiválasztott kerettel
             var table = InitializeTable(teams, fehervar);
             var matchups = GenerateSeasonMatchups(teams, fehervar);
-            var matchResults = new Dictionary<(string, string), (int, int)>(); // meccs eredmények
+            var matchResults = new Dictionary<(string, string), (int, int)>();
 
             for (int round = 1; round <= 33; round++)
             {
                 Console.WriteLine($"\n{round}. forduló eredményei szimulálása...");
 
-                SimulateRound(matchups[round - 1], table, (4, 4, 2), matchResults); // fordulók szimulálása, matchResults átadása
-                SaveRoundResults(matchups[round - 1], table, round, "szimulalteredmenyek", "auto", matchResults); // fordulók eredményének mentése, matchResults átadása
+                SimulateRound(matchups[round - 1], table, (4, 4, 2), matchResults);
+                SaveRoundResults(matchups[round - 1], table, round, "szimulalteredmenyek", chosenKit, matchResults);
             }
 
-            SaveFinalTableToFile(table, "szimulalteredmenyek", "auto"); // a file amibe a tabella kerül mindig felülíródik, így a végén az a tabella lesz benne ami a végeredményt tartalmazza
+            SaveFinalTableToFile(table, "szimulalteredmenyek", chosenKit);
             Console.Clear();
             Console.WriteLine("\n--- Végső Tabella ---");
             DisplayTable(table);
