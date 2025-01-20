@@ -78,7 +78,7 @@ namespace FutballSimulator
         /// <summary>
         /// Tabella inicializálása.
         /// </summary>
-        private static Dictionary<string, (int Points, int GoalsFor, int GoalsAgainst, int PlayedMatches, int Wins, int Draws, int Losses)> InitializeTable(List<Team> teams, Team fehervar)
+        public static Dictionary<string, (int Points, int GoalsFor, int GoalsAgainst, int PlayedMatches, int Wins, int Draws, int Losses)> InitializeTable(List<Team> teams, Team fehervar)
         {
             var table = new Dictionary<string, (int Points, int GoalsFor, int GoalsAgainst, int PlayedMatches, int Wins, int Draws, int Losses)>();
 
@@ -172,7 +172,7 @@ namespace FutballSimulator
         /// <param name="table">Az aktuális bajnoki tabella</param>
         /// <param name="formation">A csapatok választott formációja (nem használt jelenleg, de később bővíthető)</param>
         /// <param name="matchResults">A szótár, amely eltárolja a mérkőzések eredményeit</param>
-        private static void SimulateRound(List<(Team Home, Team Away)> roundMatchups, Dictionary<string, (int Points, int GoalsFor, int GoalsAgainst, int PlayedMatches, int Wins, int Draws, int Losses)> table, (int Defenders, int Midfielders, int Forwards) formation, Dictionary<(string, string), (int, int)> matchResults)
+        public static void SimulateRound(List<(Team Home, Team Away)> roundMatchups, Dictionary<string, (int Points, int GoalsFor, int GoalsAgainst, int PlayedMatches, int Wins, int Draws, int Losses)> table, (int Defenders, int Midfielders, int Forwards) formation, Dictionary<(string, string), (int, int)> matchResults)
         {
             foreach (var (home, away) in roundMatchups) // Végigmegyünk minden meccspárosításon
             {
