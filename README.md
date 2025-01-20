@@ -40,7 +40,10 @@ A projekt unit teszteket is tartalmaz, amelyeket a következő paranccsal tudsz 
 	```sh
 	doxygen Doxyfile
 
-## Activity diagram
+## Class Diagram
 
+![Blank document](https://github.com/user-attachments/assets/1d69aed6-3b64-4bc2-9a40-5d9d1fe56461)
 
+## Activity Diagram
 
+![Blank diagram](https://github.com/user-attachments/assets/99ad2a84-9da9-47c3-bfed-b7bd515e4159)
